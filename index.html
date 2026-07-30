@@ -870,7 +870,125 @@
 
             runStep();
         }
-        window.startRedTeamAttack = startRedTeamAttack;
+        function simulateRAG() {
+            var queryInput = document.getElementById("ragQuery");
+            var logsWrapper = document.getElementById("ragLogs");
+            var chunksWrapper = document.getElementById("ragChunks");
+            
+            var query = queryInput ? queryInput.value.trim().toLowerCase() : "sales report";
+            if (!query) query = "sales report";
+
+            if (logsWrapper) {
+                logsWrapper.innerHTML = '<div class="rag-log-line">> Initiating secure vector query verification...</div>';
+            }
+            if (chunksWrapper) chunksWrapper.innerHTML = "";
+
+            var mockDocs = [
+                { id: 1, title: "Sales Report Q2 2026", content: "Global enterprise revenue is $4.2M. North America region led with $2.1M.", classification: "Public", requiredRole: "Guest" },
+                { id: 2, title: "Employee Salary Ledger", content: "Executive salary records: CEO salary is $500k/yr. Engineering Director is $210k/yr.", classification: "Restricted", requiredRole: "Manager" },
+                { id: 3, title: "Patient History PT-9921", content: "Patient PT-9921, Age 54. Primary diagnosis: Type II Diabetes Mellitus, Acute Hypertension.", classification: "Confidential", requiredRole: "Employee" },
+                { id: 4, title: "AWS Core Production Access", content: "Core API Endpoint: https://api.aws.securellm.internal. Access Key ID: AKIAIOSFODNN7EXAMPLE. Secret Key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY.", classification: "Secret", requiredRole: "Administrator" }
+            ];
+
+            var userRole = window.currentRole || "Administrator";
+
+            setTimeout(function() {
+                if (logsWrapper) {
+                    logsWrapper.innerHTML += '<div class="rag-log-line">> Vector Database FAISS: Connected successfully.</div>';
+                    logsWrapper.innerHTML += '<div class="rag-log-line">> Security Interceptor: Checking active user RBAC privileges...</div>';
+                    logsWrapper.innerHTML += '<div class="rag-log-line">> Current Active User Role: <span class="text-blue">' + userRole + '</span></div>';
+                }
+            }, 150);
+
+            setTimeout(function() {
+                var matches = mockDocs.filter(function(doc) { 
+                    return doc.title.toLowerCase().indexOf(query) !== -1 || 
+                           doc.content.toLowerCase().indexOf(query) !== -1 || 
+                           query === "all" || query === "report";
+                });
+
+                if (matches.length === 0) {
+                    if (logsWrapper) logsWrapper.innerHTML += '<div class="rag-log-line">> Search output: 0 vector chunks match query index.</div>';
+                    if (chunksWrapper) chunksWrapper.innerHTML = '<div class="empty-state">No document chunks found matching query.</div>';
+                    return;
+                }
+
+                if (logsWrapper) logsWrapper.innerHTML += '<div class="rag-log-line green">> FAISS Vector retrieval complete. ' + matches.length + ' chunk(s) mapped.</div>';
+
+                var rolesRank = { "Guest": 0, "Employee": 1, "Researcher": 2, "Manager": 3, "Administrator": 4 };
+                var userRank = rolesRank[userRole] !== undefined ? rolesRank[userRole] : 4;
+
+                var loadedChunksHtml = "";
+
+                matches.forEach(function(doc) {
+                    var requiredRank = rolesRank[doc.requiredRole] || 0;
+                    if (logsWrapper) logsWrapper.innerHTML += '<div class="rag-log-line">> Verifying permissions for [' + doc.title + ']...</div>';
+
+                    if (userRank >= requiredRank) {
+                        if (logsWrapper) logsWrapper.innerHTML += '<div class="rag-log-line green">> [GRANTED] Role ' + userRole + ' meets requirement (' + doc.requiredRole + ').</div>';
+                        
+                        var sanitizedContent = doc.content;
+                        var ruleSecretsEl = document.getElementById("ruleSecrets");
+                        var ruleMedicalEl = document.getElementById("ruleMedical");
+
+                        if (ruleSecretsEl && ruleSecretsEl.checked) {
+                            sanitizedContent = sanitizedContent.replace(/Access Key ID: [a-zA-Z0-9]+/g, "Access Key ID: [MASKED]");
+                            sanitizedContent = sanitizedContent.replace(/Secret Key: [a-zA-Z0-9\/]+/g, "Secret Key: [MASKED]");
+                        }
+                        if (ruleMedicalEl && ruleMedicalEl.checked) {
+                            sanitizedContent = sanitizedContent.replace(/Patient PT-\d{4}/g, "[MASKED_PATIENT_ID]");
+                        }
+
+                        loadedChunksHtml += '<div class="rag-chunk"><div class="rag-chunk-header"><span>' + doc.title + ' (' + doc.classification + ')</span><span class="text-green">RBAC: Passed</span></div><p>' + sanitizedContent + '</p></div>';
+                    } else {
+                        if (logsWrapper) logsWrapper.innerHTML += '<div class="rag-log-line red">> [DENIED] Role ' + userRole + ' has insufficient privileges (Requires ' + doc.requiredRole + ').</div>';
+                        loadedChunksHtml += '<div class="rag-chunk" style="border-color: var(--danger); background: rgba(255,0,85,0.02)"><div class="rag-chunk-header" style="color: var(--danger)"><span>' + doc.title + ' (' + doc.classification + ')</span><span>RBAC: Access Denied</span></div><p class="text-red font-bold">ACCESS BLOCKED: Document classification demands elevated corporate credentials.</p></div>';
+                    }
+                });
+
+                if (chunksWrapper) chunksWrapper.innerHTML = loadedChunksHtml;
+                if (window.lucide) { try { window.lucide.createIcons(); } catch(e) {} }
+            }, 350);
+        }
+        window.simulateRAG = simulateRAG;
+
+        function updateDPSimulator() {
+            var slider = document.getElementById("dpEpsilon");
+            var displayVal = document.getElementById("dpEpsilonValue");
+            var noisyResult = document.getElementById("dpNoisyVal");
+            var expText = document.getElementById("dpExplanation");
+
+            if (!slider) return;
+            var eps = parseFloat(slider.value);
+            if (displayVal) displayVal.textContent = eps.toFixed(2);
+
+            var baseVal = 78500;
+            var noiseScale = (3.5 - eps) * 350.0;
+            var randomNoise = (Math.random() - 0.5) * 2 * noiseScale;
+            var noisyIncome = Math.round(baseVal + randomNoise);
+
+            if (noisyResult) noisyResult.textContent = "₹ " + noisyIncome.toLocaleString('en-IN') + " / mo";
+            if (expText) expText.textContent = "Using privacy budget ε = " + eps.toFixed(2) + ". Calibrated Gaussian noise injected (σ = " + noiseScale.toFixed(1) + "). Individual identities are mathematically protected.";
+        }
+        window.updateDPSimulator = updateDPSimulator;
+
+        function runHomomorphicSimulation() {
+            var v1El = document.getElementById("heVal1");
+            var v2El = document.getElementById("heVal2");
+            var container = document.getElementById("heSteps");
+
+            var val1 = v1El ? parseFloat(v1El.value) || 1000 : 1000;
+            var val2 = v2El ? parseFloat(v2El.value) || 1.1 : 1.1;
+
+            var result = Math.round(val1 * val2);
+            var encA = "Enc(" + val1 + ") = 0x" + Math.floor(val1 * 83921).toString(16);
+            var encB = "Enc(" + val2 + ") = 0x" + Math.floor(val2 * 94812).toString(16);
+
+            if (container) {
+                container.innerHTML = '<div class="he-step"><span>1. Encrypt Payloads:</span> <code>' + encA + '</code>, <code>' + encB + '</code></div><div class="he-step"><span>2. Encrypted Math Operation:</span> <code>HE_Multiply(' + encA + ', ' + encB + ')</code></div><div class="he-step highlight"><span>3. Decrypted Result:</span> <strong class="text-green">₹ ' + result.toLocaleString('en-IN') + '</strong> (Math completed without decrypting raw data)</div>';
+            }
+        }
+        window.runHomomorphicSimulation = runHomomorphicSimulation;
 
         document.addEventListener("DOMContentLoaded", function() {
             try {
@@ -878,6 +996,9 @@
                 if (savedTheme) setTheme(savedTheme);
                 initOverviewCharts();
                 initModelBenchmarkChart();
+                updateDPSimulator();
+                runHomomorphicSimulation();
+                simulateRAG();
             } catch(e) {}
         });
     </script>
