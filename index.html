@@ -188,6 +188,57 @@
             alert(descMap[nodeType] || "Pipeline Node Active");
         }
 
+        function analyzePrompt() {
+            var promptInput = document.getElementById("promptInput");
+            if (!promptInput) return;
+            var promptText = promptInput.value.trim();
+            if (!promptText) {
+                alert("Please enter a prompt to analyze.");
+                return;
+            }
+
+            var pipelineSequence = ["regex", "ner", "classifier", "llm", "aggregator", "decision"];
+            var stepIndex = 0;
+
+            var nodes = document.querySelectorAll(".pipeline-node");
+            nodes.forEach(function(node) {
+                node.className = "pipeline-node";
+                var statusEl = node.querySelector(".node-status");
+                if (statusEl) statusEl.textContent = "Processing...";
+            });
+
+            function runPipelineAnimation() {
+                if (stepIndex > 0) {
+                    var prevId = "node-" + pipelineSequence[stepIndex - 1];
+                    var prevNode = document.getElementById(prevId);
+                    if (prevNode) {
+                        prevNode.className = "pipeline-node active-pass";
+                        var prevStatus = prevNode.querySelector(".node-status");
+                        if (prevStatus) prevStatus.textContent = "PASSED";
+                    }
+                }
+
+                if (stepIndex < pipelineSequence.length) {
+                    var currentId = "node-" + pipelineSequence[stepIndex];
+                    var currentNode = document.getElementById(currentId);
+                    if (currentNode) {
+                        currentNode.className = "pipeline-node active-pass";
+                        var currStatus = currentNode.querySelector(".node-status");
+                        if (currStatus) currStatus.textContent = "ACTIVE";
+                    }
+                    stepIndex++;
+                    setTimeout(runPipelineAnimation, 200);
+                } else {
+                    if (typeof window.finishPipelineAnalysis === 'function') {
+                        window.finishPipelineAnalysis(promptText);
+                    }
+                }
+            }
+
+            runPipelineAnimation();
+        }
+        window.analyzePrompt = analyzePrompt;
+
         document.addEventListener("DOMContentLoaded", function() {
             try {
                 var savedTheme = localStorage.getItem("securellm_theme");
