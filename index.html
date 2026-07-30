@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureLLM Shield - Advanced AI Security & Privacy Gateway</title>
+    <!-- Outfit & Inter Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="cyber-theme">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/security_shield.jpg" alt="SecureLLM Shield Logo" class="brand-logo">
+                <div class="brand-info">
+                    <h1>SecureLLM</h1>
+                    <span class="badge badge-primary">Shield v1.0</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#overview" class="nav-item active" onclick="switchTab('overview')">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Overview & Monitor</span>
+                </a>
+                <a href="#playground" class="nav-item" onclick="switchTab('playground')">
+                    <i data-lucide="terminal"></i>
+                    <span>Prompt Sandbox</span>
+                </a>
+                <a href="#policy" class="nav-item" onclick="switchTab('policy')">
+                    <i data-lucide="shield-check"></i>
+                    <span>Adaptive Policies</span>
+                </a>
+                <a href="#rag" class="nav-item" onclick="switchTab('rag')">
+                    <i data-lucide="database"></i>
+                    <span>Secure RAG & Crypt</span>
+                </a>
+                <a href="#redteam" class="nav-item" onclick="switchTab('redteam')">
+                    <i data-lucide="swords"></i>
+                    <span>Red Team Sim</span>
+                </a>
+                <a href="#benchmark" class="nav-item" onclick="switchTab('benchmark')">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span>LLM Benchmark</span>
+                </a>
+                <a href="#audit" class="nav-item" onclick="switchTab('audit')">
+                    <i data-lucide="boxes"></i>
+                    <span>Blockchain Ledger</span>
+                </a>
+            </nav>
+
+            <!-- Theme Selector and RBAC Settings -->
+            <div class="sidebar-footer">
+                <div class="theme-picker">
+                    <span class="label-text">UI Theme</span>
+                    <div class="theme-buttons">
+                        <button class="theme-btn active" onclick="setTheme('cyber')">Cyber</button>
+                        <button class="theme-btn" onclick="setTheme('neon')">Vibrant</button>
+                        <button class="theme-btn" onclick="setTheme('dark')">Slate</button>
+                    </div>
+                </div>
+                <div class="rbac-selector">
+                    <span class="label-text">Current RBAC Role</span>
+                    <select id="userRoleSelect" onchange="onRoleChanged()">
+                        <option value="Administrator" selected>Administrator</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Researcher">Researcher</option>
+                        <option value="Employee">Employee</option>
+                        <option value="Guest">Guest</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="header-left">
+                    <span class="system-time" id="systemTime">Local Time: Loading...</span>
+                </div>
+                <div class="header-right">
+                    <div class="status-indicator">
+                        <span class="pulse-dot green"></span>
+                        <span class="status-text">Gateway Active</span>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="pulse-dot active-policy-pulse green" id="policyPulse"></span>
+                        <span class="status-text" id="activePolicyText">Policy: Enterprise</span>
+                    </div>
+                    <button class="copilot-toggle-btn" onclick="toggleCopilot()">
+                        <i data-lucide="bot"></i>
+                        <span>Security Copilot</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Panels -->
+            <div class="content-viewport">
+                
+                <!-- VIEW 1: Overview & Monitoring -->
+                <section id="overview-tab" class="tab-panel active">
+                    <div class="panel-header">
+                        <h2>Real-Time Security Monitor</h2>
+                        <p>Live observation of prompt throughput, PII violations, and behavior analytics.</p>
+                    </div>
+                    
+                    <!-- Metric Cards -->
+                    <div class="metrics-grid">
+                        <div class="metric-card bg-glass">
+                            <div class="metric-icon blue"><i data-lucide="shield"></i></div>
+                            <div class="metric-value" id="statTotalPrompts">1,482</div>
+                            <div class="metric-label">Total Prompts Enforced</div>
+                        </div>
+                        <div class="metric-card bg-glass">
+                            <div class="metric-icon red"><i data-lucide="alert-triangle"></i></div>
+                            <div class="metric-value text-red" id="statBlocked">34</div>
+                            <div class="metric-label">Threats Blocked Today</div>
+                        </div>
+                        <div class="metric-card bg-glass">
+                            <div class="metric-icon green"><i data-lucide="percent"></i></div>
+                            <div class="metric-value text-green">99.8%</div>
+                            <div class="metric-label">Protection Success Rate</div>
+                        </div>
+                        <div class="metric-card bg-glass">
+                            <div class="metric-icon purple"><i data-lucide="clock"></i></div>
+                            <div class="metric-value">12.4 ms</div>
+                            <div class="metric-label">Security Pipeline Latency</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="dashboard-grid">
+                        <div class="chart-container bg-glass">
+                            <h3>Threat Timeline (24h)</h3>
+                            <canvas id="threatTimelineChart"></canvas>
+                        </div>
+                        <div class="chart-container bg-glass">
+                            <h3>Threat Distribution</h3>
+                            <canvas id="threatDistributionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- User Behavior Analytics & Incident response -->
+                    <div class="dashboard-grid grid-2-1">
+                        <div class="logs-container bg-glass">
+                            <h3>User Behaviour Analytics (UBA)</h3>
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>User ID</th>
+                                            <th>Role</th>
+                                            <th>Action Type</th>
+                                            <th>Risk Classification</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ubaLogsTable">
+                                        <!-- Dynamic Logs -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="incident-response-panel bg-glass">
+                            <h3>Auto Incident Response Status</h3>
+                            <div class="response-list" id="responseActionList">
+                                <!-- Dynamic responses -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: Security Playground -->
+                <section id="playground-tab" class="tab-panel">
+                    <div class="panel-header">
+                        <h2>Interactive Security Sandbox</h2>
+                        <p>Test inputs, view real-time filtering, risk aggregation, and pipeline visualization.</p>
+                    </div>
+
+                    <div class="playground-layout">
+                        <!-- Left: Input Sandbox -->
+                        <div class="sandbox-input-area bg-glass">
+                            <div class="input-header">
+                                <h3>Prompt Sandbox</h3>
+                                <div class="sample-prompts-wrapper">
+                                    <label for="samplePrompts">Preset Attack Cases:</label>
+                                    <select id="samplePrompts" onchange="loadPresetPrompt()">
+                                        <option value="">-- Choose Sample --</option>
+                                        <option value="normal">Safe Enterprise Query</option>
+                                        <option value="aadhaar">Aadhaar Leakage (Government Info)</option>
+                                        <option value="pan">PAN Card Leakage (Financial Identity)</option>
+                                        <option value="credit">Credit Card & Bank Account Leakage</option>
+                                        <option value="injection">Prompt Injection Attack (Goal Jailbreak)</option>
+                                        <option value="medical">Medical Patient History Leakage</option>
+                                        <option value="secret">Source Code & API Secret Key Leakage</option>
+                                        <option value="sonuz">Full Multi-Entity Test Case (SONUZ Test)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <textarea id="promptInput" placeholder="Enter your prompt here to test security filtering..."></textarea>
+                            <div class="input-actions">
+                                <button class="btn btn-secondary" onclick="clearPlayground()">Clear</button>
+                                <button class="btn btn-primary" onclick="analyzePrompt()">Analyze Prompt <i data-lucide="play" class="icon-inline"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Right: Risk & Pipeline Analysis -->
+                        <div class="sandbox-analysis-area">
+                            <!-- Circular Risk Prediction Widget -->
+                            <div class="risk-widget bg-glass">
+                                <div class="risk-circle-wrapper">
+                                    <div class="risk-circle" id="riskCircle" style="--risk-percent: 0;">
+                                        <div class="risk-inner-circle">
+                                            <span class="risk-percentage" id="riskPercentage">0%</span>
+                                            <span class="risk-level-label" id="riskLevelLabel">Safe</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="risk-details">
+                                    <h3>Risk Score Assessment</h3>
+                                    <ul class="risk-factors-list" id="riskFactors">
+                                        <li><i data-lucide="check" class="text-green"></i> System Ready</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Explainable AI (XAI) Output Card -->
+                            <div class="xai-card bg-glass">
+                                <h3>Explainable AI (XAI) Decision Logs</h3>
+                                <div class="xai-content" id="xaiContent">
+                                    <div class="empty-state">Run an analysis to generate an explainability report.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pipeline Flow Visualization -->
+                    <div class="pipeline-section bg-glass">
+                        <h3>Hybrid Privacy & Injection Detection Pipeline</h3>
+                        <div class="pipeline-visualizer">
+                            <div class="pipeline-node" id="node-regex">
+                                <div class="node-icon"><i data-lucide="regex"></i></div>
+                                <h4>1. Regex Engine</h4>
+                                <p class="node-desc">Pattern Matching</p>
+                                <span class="node-status">Idle</span>
+                            </div>
+                            <div class="pipeline-arrow"><i data-lucide="chevron-right"></i></div>
+                            <div class="pipeline-node" id="node-ner">
+                                <div class="node-icon"><i data-lucide="sparkles"></i></div>
+                                <h4>2. Named Entity (NER)</h4>
+                                <p class="node-desc">Transformer Spans</p>
+                                <span class="node-status">Idle</span>
+                            </div>
+                            <div class="pipeline-arrow"><i data-lucide="chevron-right"></i></div>
+                            <div class="pipeline-node" id="node-classifier">
+                                <div class="node-icon"><i data-lucide="binary"></i></div>
+                                <h4>3. Transformer Classifier</h4>
+                                <p class="node-desc">DeBERTa / SpanBERT</p>
+                                <span class="node-status">Idle</span>
+                            </div>
+                            <div class="pipeline-arrow"><i data-lucide="chevron-right"></i></div>
+                            <div class="pipeline-node" id="node-llm">
+                                <div class="node-icon"><i data-lucide="bot-off"></i></div>
+                                <h4>4. LLM Verification</h4>
+                                <p class="node-desc">Self-Evaluation</p>
+                                <span class="node-status">Idle</span>
+                            </div>
+                            <div class="pipeline-arrow"><i data-lucide="chevron-right"></i></div>
+                            <div class="pipeline-node" id="node-aggregator">
+                                <div class="node-icon"><i data-lucide="bar-chart-2"></i></div>
+                                <h4>5. Risk Aggregator</h4>
+                                <p class="node-desc">Multi-Factor Score</p>
+                                <span class="node-status">Idle</span>
+                            </div>
+                            <div class="pipeline-arrow"><i data-lucide="chevron-right"></i></div>
+                            <div class="pipeline-node" id="node-decision">
+                                <div class="node-icon"><i data-lucide="shield-alert"></i></div>
+                                <h4>6. Final Action</h4>
+                                <p class="node-desc">Mask / Block / Pass</p>
+                                <span class="node-status">Idle</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sandbox Output Panel -->
+                    <div class="sandbox-output bg-glass">
+                        <div class="output-header">
+                            <h3>Prompt Sanitizer & Diff Viewer</h3>
+                            <div class="output-header-actions">
+                                <span class="badge" id="outputStatusBadge">No Input</span>
+                            </div>
+                        </div>
+                        <div class="diff-toggle-tabs">
+                            <button class="diff-tab-btn active" id="btnViewSanitized" onclick="switchOutputView('sanitized')">Sanitized Prompt Output</button>
+                            <button class="diff-tab-btn" id="btnViewDiff" onclick="switchOutputView('diff')">Prompt Sanitizer Diff (Highlighted Changes)</button>
+                        </div>
+                        <div class="output-content-container" id="sanitizedViewWrapper">
+                            <pre id="outputPromptContainer" class="masked-output-text">Your cleaned/masked prompt will appear here after analysis...</pre>
+                        </div>
+                        <div class="output-content-container" id="diffViewWrapper" style="display: none;">
+                            <div id="outputDiffContainer" class="diff-view-box">Highlighted prompt diff will appear here after analysis...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: Adaptive Policy Engine -->
+                <section id="policy-tab" class="tab-panel">
+                    <div class="panel-header">
+                        <h2>Adaptive Policy & Compliance Engine</h2>
+                        <p>Enable/disable security configurations and check compliance against global frameworks.</p>
+                    </div>
+
+                    <div class="policy-layout">
+                        <!-- Left: Policy profiles and rules -->
+                        <div class="policy-settings-card bg-glass">
+                            <h3>Active Policy Profile</h3>
+                            <div class="policy-presets">
+                                <div class="policy-preset-card active" id="preset-enterprise" onclick="selectPolicyPreset('Enterprise')">
+                                    <div class="preset-icon"><i data-lucide="building"></i></div>
+                                    <h4>Enterprise</h4>
+                                    <p>Shields internal documents, API keys, source code, and employee records.</p>
+                                </div>
+                                <div class="policy-preset-card" id="preset-healthcare" onclick="selectPolicyPreset('Healthcare')">
+                                    <div class="preset-icon"><i data-lucide="heart-pulse"></i></div>
+                                    <h4>Healthcare</h4>
+                                    <p>Strictly blocks Patient IDs, HIPAA-protected records, and diagnoses details.</p>
+                                </div>
+                                <div class="policy-preset-card" id="preset-banking" onclick="selectPolicyPreset('Banking')">
+                                    <div class="preset-icon"><i data-lucide="landmark"></i></div>
+                                    <h4>Banking</h4>
+                                    <p>Blocks Credit Cards, account information, and enforces masking of banking details.</p>
+                                </div>
+                                <div class="policy-preset-card" id="preset-government" onclick="selectPolicyPreset('Government')">
+                                    <div class="preset-icon"><i data-lucide="flag"></i></div>
+                                    <h4>Government</h4>
+                                    <p>Strictly bans Aadhaar numbers, PAN cards, passports, and domestic identity tags.</p>
+                                </div>
+                            </div>
+
+                            <h3 class="mt-large">Individual Safety Regulations</h3>
+                            <div class="rules-checkbox-grid">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="ruleAadhaar" checked onchange="onRuleToggled()">
+                                    <span class="checkmark"></span>
+                                    <span class="rule-title">Block/Mask Aadhaar Card Numbers</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="rulePAN" checked onchange="onRuleToggled()">
+                                    <span class="checkmark"></span>
+                                    <span class="rule-title">Block/Mask PAN Identification</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="ruleBank" checked onchange="onRuleToggled()">
+                                    <span class="checkmark"></span>
+                                    <span class="rule-title">Mask Bank Accounts & Credit Cards</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="ruleMedical" checked onchange="onRuleToggled()">
+                                    <span class="checkmark"></span>
+                                    <span class="rule-title">Shield Medical History & Health Records</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="ruleSecrets" checked onchange="onRuleToggled()">
+                                    <span class="checkmark"></span>
+                                    <span class="rule-title">Detect API Keys & Source Code leaks</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="ruleInjections" checked onchange="onRuleToggled()">
+                                    <span class="checkmark"></span>
+                                    <span class="rule-title">Multi-stage Prompt Injection Filter</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="ruleJailbreaks" checked onchange="onRuleToggled()">
+                                    <span class="checkmark"></span>
+                                    <span class="rule-title">Jailbreak & Adversarial Defense</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="ruleHomomorphic" onchange="onRuleToggled()">
+                                    <span class="checkmark"></span>
+                                    <span class="rule-title">Apply Homomorphic Encryption Layer</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Right: Compliance Checklist -->
+                        <div class="compliance-manager bg-glass">
+                            <h3>Enterprise Compliance Matrix</h3>
+                            <p class="section-desc">Dynamic validation of system posture against standards.</p>
+                            
+                            <div class="compliance-metrics">
+                                <div class="comp-score-card">
+                                    <span class="comp-score" id="complianceScore">87%</span>
+                                    <span class="comp-label">Global Compliance Score</span>
+                                </div>
+                            </div>
+
+                            <div class="compliance-frameworks">
+                                <!-- GDPR -->
+                                <div class="framework-status" id="fw-gdpr">
+                                    <div class="fw-header">
+                                        <h4>GDPR (Europe Privacy)</h4>
+                                        <span class="status-badge pass">Passed</span>
+                                    </div>
+                                    <ul class="fw-checklist">
+                                        <li class="checked">PII Data masking active</li>
+                                        <li class="checked">Differential Privacy logging enabled</li>
+                                        <li class="checked" id="chk-gdpr-audit">Blockchain Audit trail enabled</li>
+                                    </ul>
+                                </div>
+
+                                <!-- HIPAA -->
+                                <div class="framework-status" id="fw-hipaa">
+                                    <div class="fw-header">
+                                        <h4>HIPAA (Healthcare USA)</h4>
+                                        <span class="status-badge fail" id="badge-hipaa">Incomplete</span>
+                                    </div>
+                                    <ul class="fw-checklist">
+                                        <li class="checked">Access logging configured</li>
+                                        <li class="unchecked" id="chk-hipaa-medical">Restrict patient ID prompts</li>
+                                        <li class="unchecked" id="chk-hipaa-encrypt">Encrypt diagnoses payloads</li>
+                                    </ul>
+                                </div>
+
+                                <!-- DPDP Act (India) -->
+                                <div class="framework-status" id="fw-dpdp">
+                                    <div class="fw-header">
+                                        <h4>DPDP Act 2023 (India)</h4>
+                                        <span class="status-badge pass" id="badge-dpdp">Passed</span>
+                                    </div>
+                                    <ul class="fw-checklist">
+                                        <li class="checked">Consent/Log control validated</li>
+                                        <li class="checked" id="chk-dpdp-aadhaar">Block national identifiers (Aadhaar/PAN)</li>
+                                        <li class="checked">User data deletion handler mapped</li>
+                                    </ul>
+                                </div>
+
+                                <!-- EU AI Act -->
+                                <div class="framework-status" id="fw-euai">
+                                    <div class="fw-header">
+                                        <h4>EU AI Act Compliance</h4>
+                                        <span class="status-badge pass" id="badge-euai">High Posture</span>
+                                    </div>
+                                    <ul class="fw-checklist">
+                                        <li class="checked">Model security audits verified</li>
+                                        <li class="checked" id="chk-euai-explain">Explainable AI (XAI) output logs</li>
+                                        <li class="checked" id="chk-euai-redteam">Automated AI Red Team logs</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: Secure RAG & Encryption -->
+                <section id="rag-tab" class="tab-panel">
+                    <div class="panel-header">
+                        <h2>Secure Retrieval-Augmented Generation & Privacy Layers</h2>
+                        <p>Evaluate role-based secure vector searches, Differential Privacy ($\epsilon$-noise), and Homomorphic Encryption calculations.</p>
+                    </div>
+
+                    <div class="rag-layout">
+                        <!-- Left Column: Secure RAG Simulator -->
+                        <div class="rag-search bg-glass">
+                            <h3>Secure RAG Simulation</h3>
+                            <p class="section-desc">Search enterprise knowledgebase. Results are filtered by RBAC Role and classification.</p>
+                            
+                            <div class="rag-search-box">
+                                <input type="text" id="ragQuery" placeholder="Query RAG, e.g., 'patient history', 'api secrets', 'sales report'..." value="sales report">
+                                <button class="btn btn-primary" onclick="simulateRAG()">Search VectorDB</button>
+                            </div>
+
+                            <div class="rag-results mt-medium">
+                                <h4>Query Execution Logs</h4>
+                                <div class="rag-logs-wrapper" id="ragLogs">
+                                    <!-- Dynamic Vector Search logs -->
+                                    <div class="empty-state">Execute a vector query.</div>
+                                </div>
+
+                                <h4 class="mt-medium">Returned Document Chunks</h4>
+                                <div class="rag-chunks-wrapper" id="ragChunks">
+                                    <!-- Dynamic text chunks -->
+                                    <div class="empty-state">No chunks loaded.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Privacy Layers -->
+                        <div class="privacy-layers">
+                            <!-- Differential Privacy Simulator -->
+                            <div class="privacy-card bg-glass">
+                                <h3>Differential Privacy (DP) Layer</h3>
+                                <p class="section-desc">Inject noise to database responses to protect statistical privacy.</p>
+                                
+                                <div class="dp-slider-wrapper">
+                                    <div class="slider-header">
+                                        <span>Privacy Budget ($\epsilon$)</span>
+                                        <span class="value-highlight" id="dpEpsilonValue">0.5</span>
+                                    </div>
+                                    <input type="range" id="dpEpsilon" min="0.05" max="3.0" step="0.05" value="0.5" oninput="updateDPSimulator()">
+                                    <div class="slider-labels">
+                                        <span>High Privacy (Noisy)</span>
+                                        <span>High Utility (Exact)</span>
+                                    </div>
+                                </div>
+
+                                <div class="dp-visualization">
+                                    <div class="dp-data-comparison">
+                                        <div class="data-box">
+                                            <h5>Raw Average Income</h5>
+                                            <div class="data-val">₹ 78,500 / mo</div>
+                                        </div>
+                                        <div class="data-box arrow-right">
+                                            <i data-lucide="plus-circle" class="text-blue"></i>
+                                            <span>Add Noise</span>
+                                        </div>
+                                        <div class="data-box highlight">
+                                            <h5>Differentially Private Result</h5>
+                                            <div class="data-val text-blue" id="dpNoisyVal">₹ 78,924 / mo</div>
+                                        </div>
+                                    </div>
+                                    <p class="dp-log-text" id="dpExplanation">Using budget $\epsilon$ = 0.5. Gaussian Noise injected ($\sigma$ = 424.2). Individual identities are mathematically protected.</p>
+                                </div>
+                            </div>
+
+                            <!-- Homomorphic Encryption Simulator -->
+                            <div class="privacy-card bg-glass">
+                                <h3>Homomorphic Encryption Integration</h3>
+                                <p class="section-desc">Multiply or add secure values directly on encrypted payloads without decrypting them.</p>
+
+                                <div class="homomorphic-grid">
+                                    <div class="val-input-group">
+                                        <label for="heVal1">Plaintext A (e.g. Salary)</label>
+                                        <input type="number" id="heVal1" value="1000" onchange="runHomomorphicSimulation()">
+                                    </div>
+                                    <div class="val-input-group">
+                                        <label for="heVal2">Plaintext B (e.g. Bonus %)</label>
+                                        <input type="number" id="heVal2" value="1.1" step="0.1" onchange="runHomomorphicSimulation()">
+                                    </div>
+                                </div>
+
+                                <div class="homomorphic-steps" id="heSteps">
+                                    <!-- Dynamic homomorphic steps -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: AI Red Team Simulation -->
+                <section id="redteam-tab" class="tab-panel">
+                    <div class="panel-header">
+                        <h2>AI Red Team Simulation Sandbox</h2>
+                        <p>Simulate automated red team attacks against our LLM node, evaluating defensive shields.</p>
+                    </div>
+
+                    <div class="redteam-layout">
+                        <!-- Controls panel -->
+                        <div class="redteam-controls bg-glass">
+                            <img src="assets/threat_nodes.jpg" alt="Threat Map Graphic" class="hero-image">
+                            <h3>Launch Attack Scenarios</h3>
+                            <p class="section-desc">Run standard adversary campaigns to evaluate the success rate of prompt jailbreaks and leakage.</p>
+                            
+                            <div class="attack-options">
+                                <div class="attack-selector-group">
+                                    <label for="attackType">Select Campaign:</label>
+                                    <select id="attackType">
+                                        <option value="jailbreak">Complex Jailbreak (Do Anything Now - DAN)</option>
+                                        <option value="injection">Indirect Prompt Injection (Poisoned Context)</option>
+                                        <option value="leakage">PII Leakage Attempt (Aadhaar harvesting)</option>
+                                        <option value="override">System Prompt Override & Override</option>
+                                        <option value="all">Full Cyber Range Suite (1000+ Attacks)</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary btn-full mt-medium" id="startAttackBtn" onclick="startRedTeamAttack()">
+                                    <i data-lucide="shield-alert" class="icon-inline"></i> Execute Simulation Campaign
+                                </button>
+                            </div>
+
+                            <div class="attack-stat-summary mt-large">
+                                <h4>Campaign Performance</h4>
+                                <div class="campaign-metrics">
+                                    <div class="camp-stat">
+                                        <span class="label">Security Rating</span>
+                                        <span class="value text-green" id="campRating">A+</span>
+                                    </div>
+                                    <div class="camp-stat">
+                                        <span class="label">Attacks Blocked</span>
+                                        <span class="value text-blue" id="campBlocked">0 / 0</span>
+                                    </div>
+                                    <div class="camp-stat">
+                                        <span class="label">Attack Bypass Rate</span>
+                                        <span class="value text-red" id="campBypass">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Console Log -->
+                        <div class="redteam-console bg-glass">
+                            <div class="console-header">
+                                <h3>Attack Execution Console</h3>
+                                <div class="console-actions">
+                                    <span class="console-status-text" id="consoleStatus">Console Idle</span>
+                                    <span class="status-indicator-dot" id="consoleIndicator"></span>
+                                </div>
+                            </div>
+                            <div class="console-body" id="attackConsoleLogs">
+                                <div class="console-line system">> AI Security Shield Red Team System Initialized.</div>
+                                <div class="console-line system">> Select a campaign and execute simulator to begin testing...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 6: Cross-LLM Security Benchmark -->
+                <section id="benchmark-tab" class="tab-panel">
+                    <div class="panel-header">
+                        <h2>Cross-LLM Security Benchmarking & Migration</h2>
+                        <p>Evaluate multiple LLM configurations with security stress tests and execute policy migration validation.</p>
+                    </div>
+
+                    <!-- Benchmark Chart & Stats -->
+                    <div class="benchmark-layout">
+                        <div class="benchmark-stats bg-glass">
+                            <h3>Security Metrics Overview</h3>
+                            <p class="section-desc">Comparing leading models under identical threat payloads.</p>
+                            
+                            <div class="table-wrapper mt-medium">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Model Name</th>
+                                            <th>Leakage Rate (↓)</th>
+                                            <th>Jailbreak Resist (↑)</th>
+                                            <th>Privacy Recall (↑)</th>
+                                            <th>Response Safety (↑)</th>
+                                            <th>Avg Latency</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="font-bold">GPT-4o (OpenAI)</td>
+                                            <td class="text-green">1.2%</td>
+                                            <td class="text-green">98.5%</td>
+                                            <td class="text-green">99.1%</td>
+                                            <td class="text-green">97.8%</td>
+                                            <td>240ms</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-bold">Claude 3.5 Sonnet</td>
+                                            <td class="text-green">0.8%</td>
+                                            <td class="text-green">99.1%</td>
+                                            <td class="text-green">99.4%</td>
+                                            <td class="text-green">98.9%</td>
+                                            <td>290ms</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-bold">Llama 3.1 70B</td>
+                                            <td class="text-orange">4.5%</td>
+                                            <td class="text-green">95.4%</td>
+                                            <td class="text-green">94.9%</td>
+                                            <td class="text-green">93.2%</td>
+                                            <td>180ms</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-bold">Gemma 2 27B</td>
+                                            <td class="text-orange">5.2%</td>
+                                            <td class="text-orange">92.1%</td>
+                                            <td class="text-green">93.8%</td>
+                                            <td class="text-green">91.5%</td>
+                                            <td>130ms</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-bold">DeepSeek V3</td>
+                                            <td class="text-red">9.8%</td>
+                                            <td class="text-red">88.5%</td>
+                                            <td class="text-orange">89.2%</td>
+                                            <td class="text-orange">87.9%</td>
+                                            <td>320ms</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Benchmark chart container -->
+                        <div class="benchmark-chart bg-glass">
+                            <h3>Model Safety Index vs Latency</h3>
+                            <div class="chart-canvas-wrapper">
+                                <canvas id="modelBenchmarkChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Migration Wizard -->
+                    <div class="migration-wizard bg-glass mt-large">
+                        <h3>Secure LLM Migration Framework</h3>
+                        <p class="section-desc">Migrate enterprise LLM endpoints while verifying compliance and exporting security policies.</p>
+                        
+                        <div class="migration-flow-visual">
+                            <div class="flow-step active" id="mig-step-1">
+                                <span class="step-num">1</span>
+                                <h4>Export Policies</h4>
+                                <span class="step-status">Ready</span>
+                            </div>
+                            <div class="flow-line"></div>
+                            <div class="flow-step" id="mig-step-2">
+                                <span class="step-num">2</span>
+                                <h4>Validate Policy Compatibility</h4>
+                                <span class="step-status">Pending</span>
+                            </div>
+                            <div class="flow-line"></div>
+                            <div class="flow-step" id="mig-step-3">
+                                <span class="step-num">3</span>
+                                <h4>Execute Safe Migration</h4>
+                                <span class="step-status">Pending</span>
+                            </div>
+                            <div class="flow-line"></div>
+                            <div class="flow-step" id="mig-step-4">
+                                <span class="step-num">4</span>
+                                <h4>Verify Protection Gates</h4>
+                                <span class="step-status">Pending</span>
+                            </div>
+                        </div>
+
+                        <div class="migration-controls mt-medium">
+                            <div class="migration-selectors">
+                                <div class="migration-select">
+                                    <label for="migFrom">Source LLM Provider:</label>
+                                    <select id="migFrom">
+                                        <option value="openai">OpenAI GPT-4o</option>
+                                        <option value="llama">Llama 3.1 (Self-hosted)</option>
+                                    </select>
+                                </div>
+                                <div class="migration-arrow"><i data-lucide="arrow-right"></i></div>
+                                <div class="migration-select">
+                                    <label for="migTo">Destination LLM Provider:</label>
+                                    <select id="migTo">
+                                        <option value="claude">Claude 3.5 Sonnet</option>
+                                        <option value="deepseek">DeepSeek V3 (Cloud)</option>
+                                        <option value="gemma">Gemma 2 (Edge)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" id="btnMigrate" onclick="runMigrationWizard()">Initiate Policy Migration</button>
+                        </div>
+
+                        <div class="migration-output mt-medium" id="migrationLogContainer" style="display: none;">
+                            <h4>Migration Processing Output</h4>
+                            <pre id="migrationLogs" class="migration-log-text">Waiting to start migration...</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 7: Audit Ledger -->
+                <section id="audit-tab" class="tab-panel">
+                    <div class="panel-header">
+                        <h2>Blockchain Security Ledger</h2>
+                        <p>Tamper-proof, immutable auditing logs recording security events and policy adjustments.</p>
+                    </div>
+
+                    <div class="blockchain-ledger-area">
+                        <div class="ledger-header">
+                            <h3>Secured Ledger Blocks</h3>
+                            <button class="btn btn-secondary" onclick="verifyLedgerIntegrity()">
+                                <i data-lucide="check-circle-2" class="icon-inline"></i> Verify Chain Integrity
+                            </button>
+                        </div>
+                        
+                        <!-- Blockchain nodes representation -->
+                        <div class="blockchain-nodes-container" id="blockchainContainer">
+                            <!-- Dynamic Blocks will be appended here -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- FLOATING SECURITY COPILOT DRAWER -->
+        <aside class="copilot-drawer" id="copilotDrawer">
+            <div class="copilot-header">
+                <div class="copilot-title">
+                    <i data-lucide="bot" class="text-blue"></i>
+                    <h3>Security Copilot</h3>
+                </div>
+                <button class="close-btn" onclick="toggleCopilot()"><i data-lucide="x"></i></button>
+            </div>
+            
+            <div class="copilot-chat-body" id="copilotChat">
+                <div class="chat-message bot">
+                    Hello! I'm your Intelligent Security Copilot. I can explain security alerts, recommend policy updates, and answer compliance questions. Try asking:
+                    <div class="quick-queries">
+                        <button onclick="copilotQuickQuery('compliance')">How do I fix HIPAA compliance?</button>
+                        <button onclick="copilotQuickQuery('risk')">Explain the risk assessment algorithm</button>
+                        <button onclick="copilotQuickQuery('pipeline')">How does the hybrid engine work?</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="copilot-chat-footer">
+                <input type="text" id="copilotInput" placeholder="Ask a security question..." onkeydown="if(event.key === 'Enter') sendCopilotMessage()">
+                <button class="send-btn" onclick="sendCopilotMessage()"><i data-lucide="send"></i></button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Application Initialization Script -->
+    <script src="app.js"></script>
+</body>
+</html>
