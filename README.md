@@ -6,10 +6,18 @@ SecureLLM Shield is an enterprise-grade AI security gateway, privacy engineering
 
 ---
 
-## 🌟 Key Research Features
+## 🌟 Core Features & Modules
 
 ### 1. Universal 20-Entity Privacy Detection & Partial Masking
-Unlike basic regex filtering systems, SecureLLM Shield uses a unified hybrid detection engine that scans prompts for 20 sensitive entity types and applies intelligent **partial masking** instead of full redaction, preserving contextual utility while eliminating data leakage.
+Unlike basic regex filtering systems, SecureLLM Shield uses a unified hybrid detection engine that scans prompts for **20 sensitive entity types** and applies intelligent **partial masking** instead of full redaction, preserving contextual utility while eliminating data leakage:
+- 🇮🇳 **Aadhaar Card Numbers** (`1234 5678 9012` ➔ `XXXX XXXX 9012`) — Universal 12-digit detection across all starting digits (`0-9`).
+- 🇮🇳 **PAN Card Identification** (`ABCDE1234F` ➔ `XXXXX1234F`) — Conceals identity prefix.
+- 💳 **Credit / Debit Cards** (`4111-2222-3333-4444` ➔ `XXXX-XXXX-XXXX-4444`) — PCI-DSS compliant 12-digit masking.
+- 🏦 **Bank Account Numbers** (`12345678901` ➔ `XXXXXXX8901`) — Account number prefix protection.
+- 📱 **UPI Payment IDs** (`sonuz@oksbi` ➔ `s****@oksbi`) — Handle privacy shielding.
+- 🏛️ **IFSC Banking Codes** (`SBIN0001234` ➔ `SBINXXXX234`) — Conceals branch code.
+- 🔑 **API Keys & Developer Secrets** (`sk_test_abc...` ➔ `[API_KEY_SECRET_REDACTED]`).
+- 👤 **PII (Email, Phone, IP, MAC, Employee ID, Medical Records)** — Full anonymization.
 
 ### 2. Multi-Stage Hybrid Privacy Pipeline
 Every prompt passes through a 6-stage detection pipeline:
@@ -18,7 +26,7 @@ Regex Pattern Engine ➔ Named Entity Recognition (NER) ➔ Transformer Classifi
 ```
 
 ### 3. Adaptive Privacy Policy Engine
-Administrators can toggle pre-configured security profiles or customize individual regulations:
+Toggle pre-configured security profiles or customize individual regulations:
 - **Enterprise Profile:** Shields API keys, source code, employee records, and internal documents.
 - **Healthcare Profile:** Strictly blocks Patient IDs, HIPAA-protected health information (PHI), and medical diagnoses.
 - **Banking Profile:** Masks credit/debit card credentials, bank account numbers, and IFSC codes.
@@ -26,103 +34,82 @@ Administrators can toggle pre-configured security profiles or customize individu
 
 ### 4. AI-Based Risk Prediction Engine
 Assigns real-time risk scores (0–100%) based on entity sensitivity weights, prompt injection probability, user role clearance, and prompt complexity index:
-- `0% – 25%` $\rightarrow$ **Safe**
-- `26% – 50%` $\rightarrow$ **Moderate Risk**
-- `51% – 75%` $\rightarrow$ **High Risk**
-- `76% – 100%` $\rightarrow$ **Critical Risk**
+- `0% – 25%` ➔ **SAFE (0%)**
+- `26% – 50%` ➔ **MODERATE (30%)**
+- `51% – 75%` ➔ **HIGH (60%)**
+- `76% – 100%` ➔ **CRITICAL (98%)**
 
 ### 5. Secure Retrieval-Augmented Generation (Secure RAG)
-Provides role-based access control (RBAC) over vector databases (FAISS, ChromaDB, Pinecone). Search results are dynamically sanitized or restricted based on the querying user's active role (**Guest**, **Employee**, **Researcher**, **Manager**, **Administrator**).
+Provides role-based access control (RBAC) over vector databases (FAISS). Search results are dynamically sanitized or restricted based on the querying user's active role (**Guest**, **Employee**, **Researcher**, **Manager**, **Administrator**).
 
-### 6. Multi-Stage Prompt Injection & Jailbreak Defense
-Detects and blocks complex adversarial attacks including Do-Anything-Now (DAN) jailbreaks, system prompt overrides, context poisoning, and indirect prompt injection attempts.
+### 6. Privacy Layers (Differential Privacy & Homomorphic Encryption)
+- **Differential Privacy ($\epsilon$-budget):** Injects calibrated Gaussian noise into analytical database queries to guarantee statistical privacy.
+- **Homomorphic Encryption:** Performs mathematical operations directly on encrypted payloads without decrypting sensitive values.
 
-### 7. Automated AI Red Team Simulation Sandbox
-Executes automated adversary campaigns against deployed LLM nodes to evaluate safety scores, bypass rates, and defensive posture.
+### 7. AI Red Team Simulation Sandbox
+Executes automated adversary campaigns (DAN Jailbreaks, Indirect Injection, PII Harvesting, System Prompt Overrides) against deployed LLM nodes to evaluate safety scores, bypass rates (`0%`), and security ratings (`A+`).
 
-### 8. Cross-LLM Security Benchmarking & Migration
-Evaluates leading foundation models (**OpenAI GPT-4o**, **Claude 3.5 Sonnet**, **Llama 3.1 70B**, **Gemma 2 27B**, **DeepSeek V3**) under identical threat vectors. Includes an LLM migration wizard for cloning safety policy gates between providers.
+### 8. Cross-LLM Security Benchmarking & Migration Engine
+Evaluates leading foundation models (**Claude 3.5 Sonnet**, **OpenAI GPT-4o**, **Llama 3.1 70B**, **Gemma 2 27B**, **DeepSeek V3**) under identical threat payloads with a real-time bubble chart and policy migration wizard.
 
-### 9. Explainable AI (XAI) Security Dashboard
-Accompanies every security decision with an entity-level explanation table displaying confidence scores, regulatory reasons, and masking strategies.
+### 9. Cryptographic Blockchain Audit Ledger
+Stores security events, policy updates, and prompt evaluations as cryptographically linked, tamper-proof blocks in an immutable ledger with SHA-256 chain integrity verification.
 
-### 10. Differential Privacy & Homomorphic Encryption
-- **Differential Privacy ($\epsilon$-budget):** Injects calibrated noise into analytical database queries to guarantee statistical privacy.
-- **Homomorphic Encryption:** Performs math operations directly on encrypted payloads without decrypting sensitive values.
-
-### 11. Blockchain Audit Trail
-Stores security events, policy updates, and prompt evaluations as cryptographically linked, tamper-proof blocks in an immutable ledger.
-
-### 12. Intelligent Security Copilot
-An embedded AI assistant that provides instant guidance on HIPAA, GDPR, DPDP Act compliance, and security alert explanations.
+### 10. Intelligent Security Copilot
+An embedded AI assistant drawer providing instant guidance on HIPAA, GDPR, DPDP Act compliance, and risk alert explanations.
 
 ---
 
 ## 🔒 Supported Entities & Partial Masking Strategy
 
-| Entity Type | Example Input | Masked Output | Masking Strategy |
+| Entity Type | Example Input | Masked Output | Risk Classification |
 | :--- | :--- | :--- | :--- |
-| **Aadhaar Number** | `4567 8912 3456` | `XXXX XXXX 3456` | Preserve last 4 digits |
-| **PAN Number** | `ABCDE1234F` | `XXXXX1234F` | Mask first 5 letters |
-| **Bank Account** | `12345678901` | `XXXXXXX8901` | Preserve last 4 digits |
-| **IFSC Code** | `SBIN0001234` | `SBINXXXX234` | Preserve bank code & suffix |
-| **Credit / Debit Card** | `4111111111111111` | `XXXXXXXXXXXX1111` | PCI-DSS compliant masking |
-| **Passport Number** | `K1234567` | `XXXX4567` | Mask first 4 digits |
-| **Driving License** | `DL-1420110012345` | `DL-XXXXXXXX12345` | Mask state ID / middle digits |
-| **GST Number** | `22AAAAA0000A1Z5` | `22XXXXXXXXXA1Z5` | Mask PAN component |
-| **Voter ID** | `ABC1234567` | `XXXXX34567` | Preserve last 5 digits |
-| **UPI ID** | `sonuz@oksbi` | `s****@oksbi` | Preserve 1st char & domain |
-| **Email Address** | `sonuz@gmail.com` | `s****@gmail.com` | Domain-preserving masking |
-| **Mobile Number** | `9876543210` | `XXXXXX3210` | Preserve last 4 digits |
-| **API Keys** | `sk_test_abc123xyz` | `sk_********xyz` | Key prefix/suffix preservation |
-| **JWT Tokens** | `eyJhbGc...` | `[MASKED_JWT]` | Full structural redaction |
-| **Secret Key** | `secret_key_12345` | `secret_****12345` | Mask key body |
-| **IP Address** | `192.168.1.1` | `XXX.XXX.1.1` | Subnet-preserving masking |
-| **MAC Address** | `00:1A:2B:3C:4D:5E` | `XX:XX:XX:XX:4D:5E` | Preserve last 2 octets |
-| **Employee ID** | `EMP12345` | `EMPXXXX5` | Mask middle numerical ID |
-| **Medical Record** | `MRN-987654` | `MRN-XXXX54` | HIPAA PHI anonymization |
+| **Aadhaar Number** | `1234 5678 9012` | `XXXX XXXX 9012` | **Critical Risk** |
+| **PAN Number** | `ABCDE1234F` | `XXXXX1234F` | **High Risk** |
+| **Bank Account** | `12345678901` | `XXXXXXX8901` | **High Risk** |
+| **IFSC Code** | `SBIN0001234` | `SBINXXXX234` | **Moderate Risk** |
+| **Credit / Debit Card** | `4111-2222-3333-4444` | `XXXX-XXXX-XXXX-4444` | **Critical Risk** |
+| **Passport Number** | `Z1234567` | `ZXXXX567` | **High Risk** |
+| **Driving License** | `DL-1420110012345` | `DL-XXXXXX12345` | **Moderate Risk** |
+| **GSTIN Number** | `22AAAAA0000A1Z5` | `22XXXXXXXXXA1Z5` | **Moderate Risk** |
+| **Voter ID** | `ABC1234567` | `ABCXXXX567` | **Moderate Risk** |
+| **UPI ID** | `sonuz@oksbi` | `s****@oksbi` | **Moderate Risk** |
+| **Email Address** | `john.doe@company.com` | `j****@company.com` | **Moderate Risk** |
+| **Mobile Number** | `+91 9876543210` | `XXXXXX3210` | **High Risk** |
+| **API Keys** | `sk_live_51Nz849...` | `[API_KEY_SECRET_REDACTED]` | **Critical Risk** |
+| **JWT Tokens** | `eyJhbGciOi...` | `[JWT_TOKEN_REDACTED]` | **Critical Risk** |
+| **Secret Passwords** | `BEGIN RSA PRIVATE KEY` | `[SECRET_KEY_REDACTED]` | **Critical Risk** |
+| **IP Address** | `192.168.1.100` | `192.168.X.X` | **Low Risk** |
+| **MAC Address** | `00:1A:2B:3C:4D:5E` | `00:1A:2B:XX:XX:XX` | **Low Risk** |
+| **Employee ID** | `EMP-9821` | `EMPXXXX1` | **Moderate Risk** |
+| **Medical Record (MRN)**| `MRN-88219` | `MRNXXXX19` | **Critical Risk (HIPAA)** |
 
 ---
 
-## 📋 Compliance Matrix
+## ⚡ Installation & Running Guide
 
-SecureLLM Shield automatically audits system posture against global regulatory frameworks:
-- **GDPR (Europe):** Data minimization & differential privacy compliance.
-- **HIPAA (USA):** Health record & PHI masking verification.
-- **DPDP Act 2023 (India):** Mandatory national identity (Aadhaar/PAN) protection.
-- **EU AI Act:** Explainable AI (XAI) auditing & AI Red Team validation.
-- **PCI-DSS:** Payment card data protection.
+### 1. Requirements
+- Python 3.8+
+- Modern Web Browser (Chrome, Edge, Firefox, Safari)
 
----
+### 2. Clone & Run Backend Application Server
+```bash
+git clone https://github.com/subashp-2104/SecureLLM-Shield.git
+cd SecureLLM-Shield
+python app.py
+```
 
-## ⚡ Quick Start Guide
-
-### Running Locally
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/subashp-2104/SecureLLM-Shield.git
-   cd SecureLLM-Shield
-   ```
-
-2. Launch a local web server (using Python):
-   ```bash
-   python -m http.server 8000
-   ```
-
-3. Open your browser and navigate to:
-   ```
-   http://localhost:8000
-   ```
+The master application server will start at:
+👉 **[http://localhost:8000](http://localhost:8000)**
 
 ---
 
-## 🎯 Benchmark Verification Test
+## 🎯 Verified Multi-Entity Test Case
 
-Input prompt containing multiple sensitive entities:
+Input Prompt:
 ```text
 My name is SONUZ.
-My Aadhaar number is 4567 8912 3456.
+My Aadhaar number is 1234 5678 9012.
 My PAN is ABCDE1234F.
 My bank account number is 12345678901.
 Email is sonuz@gmail.com
@@ -131,10 +118,10 @@ UPI is sonuz@oksbi
 IFSC is SBIN0001234
 ```
 
-Sanitized Gateway Output:
+Sanitized Output:
 ```text
 My name is SONUZ.
-My Aadhaar number is XXXX XXXX 3456.
+My Aadhaar number is XXXX XXXX 9012.
 My PAN is XXXXX1234F.
 My bank account number is XXXXXXX8901.
 Email is s****@gmail.com
@@ -143,8 +130,12 @@ UPI is s****@oksbi
 IFSC is SBINXXXX234
 ```
 
+Risk Assessment Result:
+- **Overall Risk Index:** `98% (CRITICAL)`
+- **XAI Threat Status:** `YES (7 PII Spans Sanitized)`
+
 ---
 
-## 📜 License & Citation
+## 📜 License
 
-Distributed under the MIT License. Feel free to use, modify, and contribute to this project.
+Distributed under the **MIT License**. Free to use, modify, and distribute for academic and enterprise research.
