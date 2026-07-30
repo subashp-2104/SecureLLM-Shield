@@ -58,6 +58,28 @@
                 try { window.lucide.createIcons(); } catch(e) {}
             }
         }
+
+        function setTheme(themeName) {
+            document.body.className = "";
+            document.body.classList.add(themeName + "-theme");
+            var buttons = document.querySelectorAll(".theme-btn");
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove("active");
+                var onclick = buttons[i].getAttribute("onclick") || "";
+                if (onclick.indexOf("'" + themeName + "'") !== -1) {
+                    buttons[i].classList.add("active");
+                }
+            }
+            try { localStorage.setItem("securellm_theme", themeName); } catch(e) {}
+            if (window.lucide) { try { window.lucide.createIcons(); } catch(e) {} }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            try {
+                var savedTheme = localStorage.getItem("securellm_theme");
+                if (savedTheme) setTheme(savedTheme);
+            } catch(e) {}
+        });
     </script>
 </head>
 <body class="cyber-theme">
@@ -108,9 +130,15 @@
                 <div class="theme-picker">
                     <span class="label-text">UI Theme</span>
                     <div class="theme-buttons">
-                        <button class="theme-btn active" onclick="setTheme('cyber')">Cyber</button>
-                        <button class="theme-btn" onclick="setTheme('neon')">Vibrant</button>
-                        <button class="theme-btn" onclick="setTheme('dark')">Slate</button>
+                        <button type="button" class="theme-btn theme-cyber active" onclick="setTheme('cyber')">
+                            <i data-lucide="zap"></i> Cyber
+                        </button>
+                        <button type="button" class="theme-btn theme-neon" onclick="setTheme('neon')">
+                            <i data-lucide="sparkles"></i> Vibrant
+                        </button>
+                        <button type="button" class="theme-btn theme-dark" onclick="setTheme('dark')">
+                            <i data-lucide="moon"></i> Slate
+                        </button>
                     </div>
                 </div>
                 <div class="rbac-selector">

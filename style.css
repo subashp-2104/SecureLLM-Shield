@@ -231,29 +231,102 @@ body {
 .theme-buttons {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 4px;
-    border-radius: 8px;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px;
+    border-radius: 10px;
+    border: 1px solid var(--border-glass);
 }
 
 .theme-btn {
-    background: transparent;
-    border: none;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     color: var(--text-muted);
     font-size: 0.75rem;
-    font-weight: 600;
-    padding: 6px 0;
+    font-weight: 700;
+    padding: 8px 4px;
     cursor: pointer;
-    border-radius: 6px;
-    transition: all var(--transition-speed);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
 }
 
-.theme-btn.active {
-    background: var(--bg-glass);
-    color: var(--primary);
-    border: 1px solid var(--border-glass);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+.theme-btn i {
+    width: 14px;
+    height: 14px;
+}
+
+/* Cyber Theme Button Accent */
+.theme-btn.theme-cyber:hover,
+.theme-btn.theme-cyber.active {
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #000;
+    border: 1px solid #00f2fe;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+}
+
+/* Vibrant Neon Theme Button Accent */
+.theme-btn.theme-neon:hover,
+.theme-btn.theme-neon.active {
+    background: linear-gradient(135deg, #ff007f, #7928ca);
+    color: #fff;
+    border: 1px solid #ff007f;
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+}
+
+/* Slate Dark Theme Button Accent */
+.theme-btn.theme-dark:hover,
+.theme-btn.theme-dark.active {
+    background: linear-gradient(135deg, #334155, #1e293b);
+    color: #38bdf8;
+    border: 1px solid #38bdf8;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}
+
+/* Unique Colorful Active Navigation Item Gradients */
+.nav-item[onclick*="'overview'"].active {
+    background: linear-gradient(135deg, #00f2fe, #00c6ff);
+    color: #000;
+    box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);
+}
+
+.nav-item[onclick*="'playground'"].active {
+    background: linear-gradient(135deg, #ff007f, #ff0055);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(255, 0, 127, 0.4);
+}
+
+.nav-item[onclick*="'policy'"].active {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+}
+
+.nav-item[onclick*="'rag'"].active {
+    background: linear-gradient(135deg, #9d4edd, #7b2cbf);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(157, 78, 221, 0.4);
+}
+
+.nav-item[onclick*="'redteam'"].active {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+}
+
+.nav-item[onclick*="'benchmark'"].active {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #000;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+}
+
+.nav-item[onclick*="'audit'"].active {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
 }
 
 /* RBAC Selection styling */
