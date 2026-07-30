@@ -70,47 +70,24 @@ window.switchOutputView = function(viewType) {
     }
 };
 
-// Initial setup on load
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Initialize time
-    updateSystemTime();
-    setInterval(updateSystemTime, 1000);
-
-    // 2. Load Lucide icons
-    if (window.lucide) {
-        window.lucide.createIcons();
-    }
-
-    // 3. Initialize Blockchain with Genesis Block
-    addBlockToLedger("Genesis Block", "SecureLLM Shield Security Chain initialized.", "SYSTEM", "0000000000000000");
-
-    // 4. Initialize charts
-    initCharts();
-
-    // 5. Populate initial tables/logs
-    populateUBALogs();
-    populateIncidentStatus();
-    runHomomorphicSimulation();
-
-    // 6. Preload preset dropdown select event
-    document.getElementById("samplePrompts").value = "";
-});
-
-// Update System time in header
-function updateSystemTime() {
-    const timeSpan = document.getElementById("systemTime");
-    if (timeSpan) {
-        const now = new Date();
-        timeSpan.textContent = "Local Time: " + now.toLocaleString();
-    }
-}
-
 // Switching view tabs
-window.switchTab = function(tabId) {
+window.switchTab = function(tabId, evt) {
+    if (evt && evt.preventDefault) {
+        evt.preventDefault();
+    }
+
+    if (tabId) {
+        window.location.hash = tabId;
+    }
+
+    const targetTab = tabId || (window.location.hash.replace("#", "") || "overview");
+
     // Update active tab buttons
     document.querySelectorAll(".nav-item").forEach(item => {
         item.classList.remove("active");
-        if (item.getAttribute("href") === `#${tabId}`) {
+        const href = item.getAttribute("href") || "";
+        const onclick = item.getAttribute("onclick") || "";
+        if (href === `#${targetTab}` || onclick.includes(`'${targetTab}'`)) {
             item.classList.add("active");
         }
     });
@@ -120,16 +97,57 @@ window.switchTab = function(tabId) {
         panel.classList.remove("active");
     });
     
-    const activePanel = document.getElementById(`${tabId}-tab`);
+    const activePanel = document.getElementById(`${targetTab}-tab`);
     if (activePanel) {
         activePanel.classList.add("active");
+    } else {
+        // Fallback to overview
+        const defaultPanel = document.getElementById("overview-tab");
+        if (defaultPanel) defaultPanel.classList.add("active");
     }
 
-    // Re-render charts or update custom states if necessary
-    if (tabId === 'benchmark') {
+    if (targetTab === 'benchmark') {
         setTimeout(initBenchmarkChart, 50);
     }
+
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
 };
+
+// Initial setup on load
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Initialize time
+    updateSystemTime();
+    setInterval(updateSystemTime, 1000);
+
+    // 2. Initial hash-based tab navigation
+    const initialHash = window.location.hash.replace("#", "") || "overview";
+    switchTab(initialHash);
+    window.addEventListener("hashchange", () => {
+        const newHash = window.location.hash.replace("#", "") || "overview";
+        switchTab(newHash);
+    });
+
+    // 3. Load Lucide icons
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+
+    // 4. Initialize Blockchain with Genesis Block
+    addBlockToLedger("Genesis Block", "SecureLLM Shield Security Chain initialized.", "SYSTEM", "0000000000000000");
+
+    // 5. Initialize charts
+    initCharts();
+
+    // 6. Populate initial tables/logs
+    populateUBALogs();
+    populateIncidentStatus();
+    runHomomorphicSimulation();
+
+    // 7. Preload preset dropdown select event
+    document.getElementById("samplePrompts").value = "";
+});
 
 // UI Theme Picker
 window.setTheme = function(themeName) {

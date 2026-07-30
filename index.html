@@ -27,31 +27,31 @@
             </div>
             
             <nav class="nav-menu">
-                <a href="#overview" class="nav-item active" onclick="switchTab('overview')">
+                <a href="#overview" class="nav-item active" onclick="switchTab('overview', event)">
                     <i data-lucide="layout-dashboard"></i>
                     <span>Overview & Monitor</span>
                 </a>
-                <a href="#playground" class="nav-item" onclick="switchTab('playground')">
+                <a href="#playground" class="nav-item" onclick="switchTab('playground', event)">
                     <i data-lucide="terminal"></i>
                     <span>Prompt Sandbox</span>
                 </a>
-                <a href="#policy" class="nav-item" onclick="switchTab('policy')">
+                <a href="#policy" class="nav-item" onclick="switchTab('policy', event)">
                     <i data-lucide="shield-check"></i>
                     <span>Adaptive Policies</span>
                 </a>
-                <a href="#rag" class="nav-item" onclick="switchTab('rag')">
+                <a href="#rag" class="nav-item" onclick="switchTab('rag', event)">
                     <i data-lucide="database"></i>
                     <span>Secure RAG & Crypt</span>
                 </a>
-                <a href="#redteam" class="nav-item" onclick="switchTab('redteam')">
+                <a href="#redteam" class="nav-item" onclick="switchTab('redteam', event)">
                     <i data-lucide="swords"></i>
                     <span>Red Team Sim</span>
                 </a>
-                <a href="#benchmark" class="nav-item" onclick="switchTab('benchmark')">
+                <a href="#benchmark" class="nav-item" onclick="switchTab('benchmark', event)">
                     <i data-lucide="bar-chart-3"></i>
                     <span>LLM Benchmark</span>
                 </a>
-                <a href="#audit" class="nav-item" onclick="switchTab('audit')">
+                <a href="#audit" class="nav-item" onclick="switchTab('audit', event)">
                     <i data-lucide="boxes"></i>
                     <span>Blockchain Ledger</span>
                 </a>
@@ -106,11 +106,14 @@
             <!-- Content Panels -->
             <div class="content-viewport">
                 
-                <!-- VIEW 1: Overview & Monitoring -->
+                <!-- VIEW 1: Security Dashboard Overview -->
                 <section id="overview-tab" class="tab-panel active">
-                    <div class="panel-header">
-                        <h2>Real-Time Security Monitor</h2>
-                        <p>Live observation of prompt throughput, PII violations, and behavior analytics.</p>
+                    <div class="feature-hero-banner">
+                        <div class="hero-text">
+                            <h2><i data-lucide="shield-alert" style="color:var(--primary-glow)"></i> Security Operations Monitor</h2>
+                            <p>Real-time threat landscape analytics, PII leak tracking, user behavior analytics, and automated posture control.</p>
+                        </div>
+                        <img src="assets/security_shield.jpg" alt="Security Shield Graphic" class="hero-banner-img">
                     </div>
                     
                     <!-- Metric Cards -->
@@ -183,9 +186,12 @@
 
                 <!-- VIEW 2: Security Playground -->
                 <section id="playground-tab" class="tab-panel">
-                    <div class="panel-header">
-                        <h2>Interactive Security Sandbox</h2>
-                        <p>Test inputs, view real-time filtering, risk aggregation, and pipeline visualization.</p>
+                    <div class="feature-hero-banner">
+                        <div class="hero-text">
+                            <h2><i data-lucide="terminal" style="color:var(--primary-glow)"></i> Interactive Prompt Sandbox & Universal Sanitizer</h2>
+                            <p>Scans prompts against 20 sensitive entity types, applies partial masking, calculates risk scores, and generates XAI diff previews.</p>
+                        </div>
+                        <img src="assets/threat_nodes.jpg" alt="Interactive Sandbox Graphic" class="hero-banner-img">
                     </div>
 
                     <div class="playground-layout">
@@ -316,9 +322,12 @@
 
                 <!-- VIEW 3: Adaptive Policy Engine -->
                 <section id="policy-tab" class="tab-panel">
-                    <div class="panel-header">
-                        <h2>Adaptive Policy & Compliance Engine</h2>
-                        <p>Enable/disable security configurations and check compliance against global frameworks.</p>
+                    <div class="feature-hero-banner">
+                        <div class="hero-text">
+                            <h2><i data-lucide="shield-check" style="color:var(--primary-glow)"></i> Adaptive Policy Engine & Regulatory Compliance</h2>
+                            <p>Configure industry preset profiles (Enterprise, Healthcare, Banking, Government) and enforce GDPR, HIPAA, and DPDP Act 2023 compliance.</p>
+                        </div>
+                        <img src="assets/security_shield.jpg" alt="Policy Shield Graphic" class="hero-banner-img">
                     </div>
 
                     <div class="policy-layout">
@@ -464,9 +473,12 @@
 
                 <!-- VIEW 4: Secure RAG & Encryption -->
                 <section id="rag-tab" class="tab-panel">
-                    <div class="panel-header">
-                        <h2>Secure Retrieval-Augmented Generation & Privacy Layers</h2>
-                        <p>Evaluate role-based secure vector searches, Differential Privacy ($\epsilon$-noise), and Homomorphic Encryption calculations.</p>
+                    <div class="feature-hero-banner">
+                        <div class="hero-text">
+                            <h2><i data-lucide="database" style="color:var(--primary-glow)"></i> Secure RAG Vector DB & Cryptographic Privacy Layers</h2>
+                            <p>Test RBAC vector document queries, Differential Privacy ($\epsilon$-budget noise injection), and Homomorphic Encryption payloads.</p>
+                        </div>
+                        <img src="assets/threat_nodes.jpg" alt="Secure RAG Graphic" class="hero-banner-img">
                     </div>
 
                     <div class="rag-layout">
@@ -625,9 +637,12 @@
 
                 <!-- VIEW 6: Cross-LLM Security Benchmark -->
                 <section id="benchmark-tab" class="tab-panel">
-                    <div class="panel-header">
-                        <h2>Cross-LLM Security Benchmarking & Migration</h2>
-                        <p>Evaluate multiple LLM configurations with security stress tests and execute policy migration validation.</p>
+                    <div class="feature-hero-banner">
+                        <div class="hero-text">
+                            <h2><i data-lucide="bar-chart-3" style="color:var(--primary-glow)"></i> Cross-LLM Security Benchmarking & Migration Engine</h2>
+                            <p>Compare security posture across foundation models (GPT-4o, Claude 3.5, Llama 3.1, Gemma 2, DeepSeek V3) and migrate policy profiles.</p>
+                        </div>
+                        <img src="assets/security_shield.jpg" alt="Benchmark Graphic" class="hero-banner-img">
                     </div>
 
                     <!-- Benchmark Chart & Stats -->
@@ -765,9 +780,12 @@
 
                 <!-- VIEW 7: Audit Ledger -->
                 <section id="audit-tab" class="tab-panel">
-                    <div class="panel-header">
-                        <h2>Blockchain Security Ledger</h2>
-                        <p>Tamper-proof, immutable auditing logs recording security events and policy adjustments.</p>
+                    <div class="feature-hero-banner">
+                        <div class="hero-text">
+                            <h2><i data-lucide="boxes" style="color:var(--primary-glow)"></i> Cryptographic Blockchain Audit Ledger</h2>
+                            <p>Tamper-proof, immutable ledger tracking all prompt evaluations, risk decisions, and policy adjustments across block chains.</p>
+                        </div>
+                        <img src="assets/threat_nodes.jpg" alt="Blockchain Ledger Graphic" class="hero-banner-img">
                     </div>
 
                     <div class="blockchain-ledger-area">
