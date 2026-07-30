@@ -136,7 +136,15 @@
             var riskPct = document.getElementById("riskPercentage");
             if (riskPct) riskPct.textContent = "0%";
             var riskLbl = document.getElementById("riskLevelLabel");
-            if (riskLbl) riskLbl.textContent = "Safe";
+            if (riskLbl) {
+                riskLbl.textContent = "SAFE";
+                riskLbl.style.color = "#10b981";
+            }
+            var assessmentBadge = document.getElementById("assessmentRiskBadge");
+            if (assessmentBadge) {
+                assessmentBadge.textContent = "SAFE (0%)";
+                assessmentBadge.className = "badge risk-level-badge badge-safe";
+            }
 
             var factorsUl = document.getElementById("riskFactors");
             if (factorsUl) factorsUl.innerHTML = '<li><i data-lucide="check" class="text-green"></i> System Ready</li>';
@@ -476,12 +484,34 @@
             if (riskPct) riskPct.textContent = riskScore + "%";
 
             var riskLbl = document.getElementById("riskLevelLabel");
+            var assessmentBadge = document.getElementById("assessmentRiskBadge");
+
+            var labelText = "SAFE";
+            var badgeClass = "badge risk-level-badge badge-safe";
+            var labelColor = "#10b981";
+
+            if (riskScore > 75) {
+                labelText = "CRITICAL";
+                badgeClass = "badge risk-level-badge badge-danger";
+                labelColor = "#ef4444";
+            } else if (riskScore > 50) {
+                labelText = "HIGH";
+                badgeClass = "badge risk-level-badge badge-warning";
+                labelColor = "#f59e0b";
+            } else if (riskScore > 25) {
+                labelText = "MODERATE";
+                badgeClass = "badge risk-level-badge badge-primary";
+                labelColor = "#00f2fe";
+            }
+
             if (riskLbl) {
-                var labelText = "Safe";
-                if (riskScore > 75) labelText = "Critical";
-                else if (riskScore > 50) labelText = "High";
-                else if (riskScore > 25) labelText = "Moderate";
                 riskLbl.textContent = labelText;
+                riskLbl.style.color = labelColor;
+            }
+
+            if (assessmentBadge) {
+                assessmentBadge.textContent = labelText + " (" + riskScore + "%)";
+                assessmentBadge.className = badgeClass;
             }
 
             var factorsUl = document.getElementById("riskFactors");
@@ -771,7 +801,10 @@
                                     </div>
                                 </div>
                                 <div class="risk-details">
-                                    <h3>Risk Score Assessment</h3>
+                                    <div class="risk-assessment-header">
+                                        <h3>Risk Score Assessment</h3>
+                                        <span class="badge risk-level-badge badge-safe" id="assessmentRiskBadge">SAFE (0%)</span>
+                                    </div>
                                     <ul class="risk-factors-list" id="riskFactors">
                                         <li><i data-lucide="check" class="text-green"></i> System Ready</li>
                                     </ul>
