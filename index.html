@@ -13,6 +13,52 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
+    <script>
+        function switchTab(tabId, evt) {
+            if (evt) {
+                if (typeof evt.preventDefault === 'function') evt.preventDefault();
+                if (typeof evt.stopPropagation === 'function') evt.stopPropagation();
+            }
+            var cleanId = (tabId || "overview").replace("#", "");
+
+            var buttons = document.querySelectorAll(".nav-item");
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove("active");
+                var onclick = buttons[i].getAttribute("onclick") || "";
+                if (onclick.indexOf("'" + cleanId + "'") !== -1) {
+                    buttons[i].classList.add("active");
+                }
+            }
+
+            var panels = document.querySelectorAll(".tab-panel");
+            for (var j = 0; j < panels.length; j++) {
+                panels[j].classList.remove("active");
+                panels[j].style.display = "none";
+            }
+
+            var target = document.getElementById(cleanId + "-tab");
+            if (target) {
+                target.classList.add("active");
+                target.style.display = "block";
+            } else {
+                var defaultTarget = document.getElementById("overview-tab");
+                if (defaultTarget) {
+                    defaultTarget.classList.add("active");
+                    defaultTarget.style.display = "block";
+                }
+            }
+
+            try {
+                if (window.history && window.history.pushState) {
+                    window.history.pushState(null, null, "#" + cleanId);
+                }
+            } catch(e) {}
+
+            if (window.lucide) {
+                try { window.lucide.createIcons(); } catch(e) {}
+            }
+        }
+    </script>
 </head>
 <body class="cyber-theme">
     <div class="app-container">
