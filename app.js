@@ -681,18 +681,63 @@ function detectEntities(prompt) {
     return deDuplicated;
 }
 
-function finishPipelineAnalysis(prompt) {
-    // 1. Detect all sensitive entities using Universal Detection Engine
-    const detectedEntities = detectEntities(prompt);
-
-    // Check Prompt Injection & Jailbreak keywords
-    const injectionKeywords = ["system override", "ignore all instructions", "diagnostic mode", "jailbroken"];
+async function finishPipelineAnalysis(prompt) {
+    let detectedEntities = [];
+    let sanitizedPrompt = prompt;
+    let builtDiffHtml = escapeHtml(prompt);
+    let riskScore = 0;
     let injectionDetected = false;
-    injectionKeywords.forEach(kw => {
-        if (prompt.toLowerCase().includes(kw.toLowerCase())) {
-            injectionDetected = true;
+    let threatStatusText = "NO";
+
+    try {
+        // Call Python Backend API Endpoint
+        const response = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, policy: activePolicy })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            sanitizedPrompt = data.sanitized_prompt;
+            builtDiffHtml = data.diff_html;
+            riskScore = data.risk_score;
+            threatStatusText = data.threat_detected;
+            injectionDetected = data.injection_detected;
+            detectedEntities = data.detected_entities.map(e => new SensitiveEntity(e));
+        } else {
+            throw new Error("Python Backend API response error");
         }
-    });
+    } catch (err) {
+        console.warn("Python Backend API unreachable, using client fallback:", err);
+        detectedEntities = detectEntities(prompt);
+        const injectionKeywords = ["system override", "ignore all instructions", "diagnostic mode", "jailbroken"];
+        injectionDetected = injectionKeywords.some(kw => prompt.toLowerCase().includes(kw));
+        
+        const sortedDescending = [...detectedEntities].sort((a, b) => b.start_index - a.start_index);
+        sortedDescending.forEach(entity => {
+            sanitizedPrompt = sanitizedPrompt.substring(0, entity.start_index) + entity.masked_value + sanitizedPrompt.substring(entity.end_index);
+        });
+
+        let diffCursor = 0;
+        builtDiffHtml = "";
+        const sortedAscending = [...detectedEntities].sort((a, b) => a.start_index - b.start_index);
+        sortedAscending.forEach(entity => {
+            builtDiffHtml += escapeHtml(prompt.substring(diffCursor, entity.start_index));
+            builtDiffHtml += `<mark class="masked-diff" title="${entity.entity_type}: ${escapeHtml(entity.original_value)}">${escapeHtml(entity.masked_value)}</mark>`;
+            diffCursor = entity.end_index;
+        });
+        builtDiffHtml += escapeHtml(prompt.substring(diffCursor));
+
+        const typeSet = new Set(detectedEntities.map(e => e.entity_type));
+        if (typeSet.has("PAN Number")) riskScore += 30;
+        if (typeSet.has("Aadhaar Number")) riskScore += 25;
+        if (typeSet.has("Bank Account Number") || typeSet.has("Credit Card Number")) riskScore += 25;
+        if (any(k in typeSet for k in ["API Key", "JWT Token", "Secret Key"])) riskScore += 15;
+        if (injectionDetected) riskScore += 40;
+        if (riskScore > 100) riskScore = 100;
+        threatStatusText = (detectedEntities.length > 0 || injectionDetected) ? "YES" : "NO";
+    }
 
     // 2. Perform Non-Overlapping Universal Span Masking (end-to-start replacement)
     // Sort descending for backwards string substitution
