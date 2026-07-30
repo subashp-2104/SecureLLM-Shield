@@ -239,6 +239,303 @@
         }
         window.analyzePrompt = analyzePrompt;
 
+        function SensitiveEntity(data) {
+            this.entity_type = data.entity_type;
+            this.original_value = data.original_value;
+            this.masked_value = data.masked_value;
+            this.confidence = data.confidence || 95.0;
+            this.start_index = data.start_index;
+            this.end_index = data.end_index;
+            this.risk_level = data.risk_level || "Medium";
+            this.strategy = data.strategy || "Partial Masking";
+            this.reason = data.reason || "Privacy Protection";
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function detectEntities(prompt) {
+            var rawEntities = [];
+            var match;
+
+            function maskUPI(val) {
+                var parts = val.split('@');
+                if (parts.length === 2) {
+                    var handle = parts[0];
+                    return (handle.length > 1 ? handle[0] + '****' : handle + '****') + '@' + parts[1];
+                }
+                return 's****@oksbi';
+            }
+
+            function maskEmail(val) {
+                var parts = val.split('@');
+                if (parts.length === 2) {
+                    var handle = parts[0];
+                    return (handle.length > 1 ? handle[0] + '****' : handle + '****') + '@' + parts[1];
+                }
+                return 's****@gmail.com';
+            }
+
+            var aadhaarRegex = /\b[2-9]\d{3}[\s-]?\d{4}[\s-]?\d{4}\b/g;
+            while ((match = aadhaarRegex.exec(prompt)) !== null) {
+                var orig = match[0];
+                var digits = orig.replace(/[\s-]/g, '');
+                if (digits.length === 12) {
+                    var masked = orig.includes(' ') ? 'XXXX XXXX ' + digits.substring(8) : (orig.includes('-') ? 'XXXX-XXXX-' + digits.substring(8) : 'XXXXXXXX' + digits.substring(8));
+                    rawEntities.push(new SensitiveEntity({
+                        entity_type: "Aadhaar Number", original_value: orig, masked_value: masked,
+                        confidence: 99.2, start_index: match.index, end_index: match.index + orig.length,
+                        risk_level: "Critical", strategy: "Partial Masking (Last 4 Digits Visible)", reason: "Government Unique Identification Protection"
+                    }));
+                }
+            }
+
+            var panRegex = /\b[A-Z]{5}\d{4}[A-Z]{1}\b/g;
+            while ((match = panRegex.exec(prompt)) !== null) {
+                var orig = match[0];
+                var masked = "XXXXX" + orig.substring(5);
+                rawEntities.push(new SensitiveEntity({
+                    entity_type: "PAN Number", original_value: orig, masked_value: masked,
+                    confidence: 99.8, start_index: match.index, end_index: match.index + orig.length,
+                    risk_level: "Critical", strategy: "Partial Masking (First 5 Alpha Redacted)", reason: "Income Tax Identity Protection"
+                }));
+            }
+
+            var bankRegex = /\b\d{9,18}\b/g;
+            while ((match = bankRegex.exec(prompt)) !== null) {
+                var orig = match[0];
+                if (orig.length >= 9 && orig.length <= 18) {
+                    var masked = "X".repeat(orig.length - 4) + orig.substring(orig.length - 4);
+                    rawEntities.push(new SensitiveEntity({
+                        entity_type: "Bank Account Number", original_value: orig, masked_value: masked,
+                        confidence: 94.5, start_index: match.index, end_index: match.index + orig.length,
+                        risk_level: "High", strategy: "Partial Masking (Suffix 4 Digits)", reason: "Financial Account Protection"
+                    }));
+                }
+            }
+
+            var emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
+            while ((match = emailRegex.exec(prompt)) !== null) {
+                var orig = match[0];
+                rawEntities.push(new SensitiveEntity({
+                    entity_type: "Email Address", original_value: orig, masked_value: maskEmail(orig),
+                    confidence: 98.9, start_index: match.index, end_index: match.index + orig.length,
+                    risk_level: "Low", strategy: "Partial Masking (Prefix Character + Domain)", reason: "Contact Privacy Protection"
+                }));
+            }
+
+            var phoneRegex = /\b(?:\+91[\s-]?)?[6-9]\d{9}\b/g;
+            while ((match = phoneRegex.exec(prompt)) !== null) {
+                var orig = match[0];
+                var digits = orig.replace(/\D/g, '');
+                var last4 = digits.substring(digits.length - 4);
+                var masked = "XXXXXX" + last4;
+                rawEntities.push(new SensitiveEntity({
+                    entity_type: "Mobile Number", original_value: orig, masked_value: masked,
+                    confidence: 96.1, start_index: match.index, end_index: match.index + orig.length,
+                    risk_level: "Medium", strategy: "Partial Masking (Suffix 4 Digits)", reason: "Personal Phone Privacy"
+                }));
+            }
+
+            var upiRegex = /\b[a-zA-Z0-9.\-_]{2,256}@(okaxis|oksbi|icici|paytm|ybl|apl|axl|ibl|barodampay|upi)\b/gi;
+            while ((match = upiRegex.exec(prompt)) !== null) {
+                var orig = match[0];
+                rawEntities.push(new SensitiveEntity({
+                    entity_type: "UPI ID", original_value: orig, masked_value: maskUPI(orig),
+                    confidence: 97.4, start_index: match.index, end_index: match.index + orig.length,
+                    risk_level: "High", strategy: "Partial Masking (Handle Redaction)", reason: "NPCI Payment Identity Shielding"
+                }));
+            }
+
+            var ifscRegex = /\b[A-Z]{4}0[A-Z0-9]{6}\b/g;
+            while ((match = ifscRegex.exec(prompt)) !== null) {
+                var orig = match[0];
+                var masked = orig.substring(0, 4) + "XXXX" + orig.substring(8);
+                rawEntities.push(new SensitiveEntity({
+                    entity_type: "IFSC Code", original_value: orig, masked_value: masked,
+                    confidence: 98.0, start_index: match.index, end_index: match.index + orig.length,
+                    risk_level: "Medium", strategy: "Partial Masking (Center Branch Code)", reason: "Banking Branch Code Privacy"
+                }));
+            }
+
+            rawEntities.sort(function(a, b) { return a.start_index - b.start_index; });
+            var deDuplicated = [];
+            for (var i = 0; i < rawEntities.length; i++) {
+                var entity = rawEntities[i];
+                if (deDuplicated.length === 0) {
+                    deDuplicated.push(entity);
+                } else {
+                    var prev = deDuplicated[deDuplicated.length - 1];
+                    if (entity.start_index >= prev.end_index) {
+                        deDuplicated.push(entity);
+                    }
+                }
+            }
+            return deDuplicated;
+        }
+
+        async function finishPipelineAnalysis(prompt) {
+            var detectedEntities = [];
+            var sanitizedPrompt = prompt;
+            var builtDiffHtml = escapeHtml(prompt);
+            var riskScore = 0;
+            var injectionDetected = false;
+            var threatStatusText = "NO";
+
+            try {
+                var response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt, policy: 'Enterprise' })
+                });
+                if (response.ok) {
+                    var data = await response.json();
+                    sanitizedPrompt = data.sanitized_prompt;
+                    builtDiffHtml = data.diff_html;
+                    riskScore = data.risk_score;
+                    threatStatusText = data.threat_detected;
+                    injectionDetected = data.injection_detected;
+                    detectedEntities = data.detected_entities.map(function(e) { return new SensitiveEntity(e); });
+                } else {
+                    throw new Error("Backend offline");
+                }
+            } catch (err) {
+                console.warn("Using inline fallback detection:", err);
+                detectedEntities = detectEntities(prompt);
+                var injectionKeywords = ["system override", "ignore all instructions", "diagnostic mode", "jailbroken"];
+                injectionDetected = injectionKeywords.some(function(kw) { return prompt.toLowerCase().indexOf(kw) !== -1; });
+
+                var sortedDesc = detectedEntities.slice().sort(function(a, b) { return b.start_index - a.start_index; });
+                sortedDesc.forEach(function(entity) {
+                    sanitizedPrompt = sanitizedPrompt.substring(0, entity.start_index) + entity.masked_value + sanitizedPrompt.substring(entity.end_index);
+                });
+
+                var diffCursor = 0;
+                builtDiffHtml = "";
+                var sortedAsc = detectedEntities.slice().sort(function(a, b) { return a.start_index - b.start_index; });
+                sortedAsc.forEach(function(entity) {
+                    builtDiffHtml += escapeHtml(prompt.substring(diffCursor, entity.start_index));
+                    builtDiffHtml += '<mark class="masked-diff" title="' + entity.entity_type + ': ' + escapeHtml(entity.original_value) + '">' + escapeHtml(entity.masked_value) + '</mark>';
+                    diffCursor = entity.end_index;
+                });
+                builtDiffHtml += escapeHtml(prompt.substring(diffCursor));
+
+                var typeSet = new Set(detectedEntities.map(function(e) { return e.entity_type; }));
+                if (typeSet.has("PAN Number")) riskScore += 30;
+                if (typeSet.has("Aadhaar Number")) riskScore += 25;
+                if (typeSet.has("Bank Account Number") || typeSet.has("Credit Card Number")) riskScore += 25;
+                if (["API Key", "JWT Token", "Secret Key"].some(function(k) { return typeSet.has(k); })) riskScore += 15;
+                if (["IFSC Code", "UPI ID", "Mobile Number"].some(function(k) { return typeSet.has(k); })) riskScore += 10;
+                if (["Email Address", "Passport Number", "Driving License"].some(function(k) { return typeSet.has(k); })) riskScore += 8;
+
+                var remainingCount = detectedEntities.length - typeSet.size;
+                if (remainingCount > 0) riskScore += remainingCount * 4;
+                if (injectionDetected) riskScore += 40;
+                if (riskScore > 100) riskScore = 100;
+                threatStatusText = (detectedEntities.length > 0 || injectionDetected) ? "YES" : "NO";
+            }
+
+            var outputCont = document.getElementById("outputPromptContainer");
+            var diffCont = document.getElementById("outputDiffContainer");
+            var badge = document.getElementById("outputStatusBadge");
+
+            var isBlocked = false;
+            var decisionColor = "var(--success)";
+
+            if (injectionDetected) {
+                isBlocked = true;
+                decisionColor = "var(--danger)";
+                sanitizedPrompt = "[BLOCKED - POLICY VIOLATION: Adversarial Prompt Injection Attempt Blocked]";
+                if (outputCont) { outputCont.textContent = sanitizedPrompt; outputCont.className = "masked-output-text text-red"; }
+                if (diffCont) { diffCont.innerHTML = '<span class="text-red font-bold">' + sanitizedPrompt + '</span>'; }
+                if (badge) { badge.textContent = "BLOCKED"; badge.className = "badge status-badge fail"; }
+            } else if (detectedEntities.length > 0) {
+                decisionColor = riskScore > 60 ? "var(--warning)" : "var(--primary)";
+                if (outputCont) { outputCont.textContent = sanitizedPrompt; outputCont.className = "masked-output-text text-blue"; }
+                if (diffCont) { diffCont.innerHTML = builtDiffHtml; }
+                if (badge) { badge.textContent = "MASKED & SANITIZED"; badge.className = "badge status-badge pass"; }
+            } else {
+                if (outputCont) { outputCont.textContent = sanitizedPrompt; outputCont.className = "masked-output-text text-green"; }
+                if (diffCont) { diffCont.textContent = sanitizedPrompt; }
+                if (badge) { badge.textContent = "CLEARED"; badge.className = "badge status-badge pass"; }
+            }
+
+            var circle = document.getElementById("riskCircle");
+            if (circle) {
+                circle.style.setProperty("--risk-percent", riskScore);
+                circle.style.setProperty("--circle-color", decisionColor);
+            }
+            var riskPct = document.getElementById("riskPercentage");
+            if (riskPct) riskPct.textContent = riskScore + "%";
+
+            var riskLbl = document.getElementById("riskLevelLabel");
+            if (riskLbl) {
+                var labelText = "Safe";
+                if (riskScore > 75) labelText = "Critical";
+                else if (riskScore > 50) labelText = "High";
+                else if (riskScore > 25) labelText = "Moderate";
+                riskLbl.textContent = labelText;
+            }
+
+            var factorsUl = document.getElementById("riskFactors");
+            if (factorsUl) {
+                if (detectedEntities.length === 0 && !injectionDetected) {
+                    factorsUl.innerHTML = '<li><i data-lucide="check" class="text-green"></i> No sensitive entities identified.</li>';
+                } else {
+                    var factorsHtml = "";
+                    if (injectionDetected) {
+                        factorsHtml += '<li><i data-lucide="shield-alert" class="text-red"></i> Prompt Injection Attack (+40% Risk)</li>';
+                    }
+                    detectedEntities.forEach(function(e) {
+                        var colorClass = e.risk_level === "Critical" ? "text-red" : "text-blue";
+                        factorsHtml += '<li><i data-lucide="shield-alert" class="' + colorClass + '"></i> ' + e.entity_type + ' matched (' + e.masked_value + ')</li>';
+                    });
+                    factorsUl.innerHTML = factorsHtml;
+                }
+            }
+
+            var xaiCont = document.getElementById("xaiContent");
+            if (xaiCont) {
+                var threatClass = threatStatusText === "YES" ? "text-red" : "text-green";
+                if (detectedEntities.length === 0 && !injectionDetected) {
+                    xaiCont.innerHTML = '<div class="xai-summary-badge"><span>Threat Detected: <strong class="text-green">NO</strong></span><span>Overall Risk Score: <strong>0%</strong></span></div><p class="empty-state">Prompt evaluated cleanly. No PII detected.</p>';
+                } else {
+                    var rows = detectedEntities.map(function(e) {
+                        return '<tr><td><span class="text-green">✓</span> <strong>' + e.entity_type + '</strong></td><td>' + e.confidence + '%</td><td>' + e.strategy + '</td><td>' + e.reason + '</td></tr>';
+                    }).join("");
+                    xaiCont.innerHTML = '<div class="xai-summary-badge"><span>Threat Detected: <strong class="' + threatClass + '">' + threatStatusText + '</strong></span><span>Entities Detected: <strong>' + detectedEntities.length + '</strong></span><span>Overall Risk: <strong class="' + (riskScore > 50 ? 'text-red' : 'text-blue') + '">' + riskScore + '%</strong></span></div><div class="table-wrapper"><table class="xai-entity-table"><thead><tr><th>Detected Entity</th><th>Confidence</th><th>Masking Strategy</th><th>Reason for Masking</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+                }
+            }
+
+            var decisionNode = document.getElementById("node-decision");
+            if (decisionNode) {
+                if (isBlocked) {
+                    decisionNode.className = "pipeline-node active-fail";
+                    var st = decisionNode.querySelector(".node-status");
+                    if (st) st.textContent = "BLOCKED";
+                } else if (detectedEntities.length > 0) {
+                    decisionNode.className = "pipeline-node active-pass";
+                    var st2 = decisionNode.querySelector(".node-status");
+                    if (st2) st2.textContent = "MASKED";
+                }
+            }
+
+            var outputCard = document.getElementById("sanitizedOutputCard");
+            if (outputCard) {
+                outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            if (window.lucide) { try { window.lucide.createIcons(); } catch(e) {} }
+        }
+        window.finishPipelineAnalysis = finishPipelineAnalysis;
+
         document.addEventListener("DOMContentLoaded", function() {
             try {
                 var savedTheme = localStorage.getItem("securellm_theme");
