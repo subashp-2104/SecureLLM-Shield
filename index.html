@@ -719,7 +719,56 @@
                 console.warn("Benchmark chart init error:", e);
             }
         }
-        window.initModelBenchmarkChart = initModelBenchmarkChart;
+        function runMigrationWizard() {
+            var fromSelect = document.getElementById("migFrom");
+            var toSelect = document.getElementById("migTo");
+            var container = document.getElementById("migrationLogContainer");
+            var logs = document.getElementById("migrationLogs");
+            var btn = document.getElementById("btnMigrate");
+
+            var fromVal = fromSelect ? fromSelect.options[fromSelect.selectedIndex].text : "OpenAI GPT-4o";
+            var toVal = toSelect ? toSelect.options[toSelect.selectedIndex].text : "Claude 3.5 Sonnet";
+
+            if (btn) {
+                btn.innerHTML = '<i data-lucide="refresh-cw" class="icon-inline"></i> Migrating Policies...';
+                btn.disabled = true;
+            }
+
+            if (container) container.style.display = "block";
+            if (logs) logs.textContent = "--> Initializing SecureLLM Shield Migration Gateway...\n";
+
+            var step1 = document.getElementById("mig-step-1");
+            var step2 = document.getElementById("mig-step-2");
+            var step3 = document.getElementById("mig-step-3");
+            var step4 = document.getElementById("mig-step-4");
+
+            setTimeout(function() {
+                if (logs) logs.textContent += "[+] Exporting Active Enterprise Policy Profiles & Rulesets...\n";
+                if (step1) step1.className = "flow-step active";
+            }, 400);
+
+            setTimeout(function() {
+                if (logs) logs.textContent += "[+] Validating Policy Compatibility for Destination: " + toVal + "...\n";
+                if (logs) logs.textContent += "[OK] 20-Entity PII Regex & NER Classifier Map Verified.\n";
+                if (step2) step2.className = "flow-step active";
+            }, 900);
+
+            setTimeout(function() {
+                if (logs) logs.textContent += "[+] Injecting Zero-Trust Gateways & Privacy Rules into " + toVal + "...\n";
+                if (step3) step3.className = "flow-step active";
+            }, 1400);
+
+            setTimeout(function() {
+                if (logs) logs.textContent += "[✓] MIGRATION SUCCESSFUL! Safety policy gates cloned from " + fromVal + " to " + toVal + ".\n";
+                if (step4) step4.className = "flow-step active";
+                if (btn) {
+                    btn.innerHTML = 'Initiate Policy Migration';
+                    btn.disabled = false;
+                }
+                if (window.lucide) { try { window.lucide.createIcons(); } catch(e) {} }
+            }, 1900);
+        }
+        window.runMigrationWizard = runMigrationWizard;
 
         document.addEventListener("DOMContentLoaded", function() {
             try {
