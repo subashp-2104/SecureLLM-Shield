@@ -483,6 +483,13 @@ def serve_index():
 def serve_static(filename):
     return send_from_directory(".", filename)
 
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
 if __name__ == "__main__":
     print("Starting SecureLLM Shield Python Backend Server on port 8000...")
     app.run(host="0.0.0.0", port=8000, debug=False)

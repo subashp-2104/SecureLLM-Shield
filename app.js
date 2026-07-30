@@ -72,41 +72,54 @@ window.switchOutputView = function(viewType) {
 
 // Switching view tabs
 window.switchTab = function(tabId, evt) {
-    if (evt && evt.preventDefault) {
-        evt.preventDefault();
+    if (evt) {
+        if (typeof evt.preventDefault === 'function') evt.preventDefault();
+        if (typeof evt.stopPropagation === 'function') evt.stopPropagation();
     }
 
-    if (tabId) {
-        window.location.hash = tabId;
-    }
+    const cleanTabId = (tabId || "").replace('#', '') || "overview";
 
-    const targetTab = tabId || (window.location.hash.replace("#", "") || "overview");
-
-    // Update active tab buttons
-    document.querySelectorAll(".nav-item").forEach(item => {
+    // 1. Update nav menu button active classes
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach(item => {
         item.classList.remove("active");
         const href = item.getAttribute("href") || "";
-        const onclick = item.getAttribute("onclick") || "";
-        if (href === `#${targetTab}` || onclick.includes(`'${targetTab}'`)) {
+        const onclickAttr = item.getAttribute("onclick") || "";
+        if (href === `#${cleanTabId}` || onclickAttr.includes(`'${cleanTabId}'`)) {
             item.classList.add("active");
         }
     });
 
-    // Update active content panels
-    document.querySelectorAll(".tab-panel").forEach(panel => {
+    // 2. Force hide ALL tab panels
+    const panels = document.querySelectorAll(".tab-panel");
+    panels.forEach(panel => {
         panel.classList.remove("active");
+        panel.style.display = "none";
     });
-    
-    const activePanel = document.getElementById(`${targetTab}-tab`);
-    if (activePanel) {
-        activePanel.classList.add("active");
+
+    // 3. Force show target tab panel
+    const targetPanel = document.getElementById(`${cleanTabId}-tab`);
+    if (targetPanel) {
+        targetPanel.classList.add("active");
+        targetPanel.style.display = "block";
     } else {
-        // Fallback to overview
-        const defaultPanel = document.getElementById("overview-tab");
-        if (defaultPanel) defaultPanel.classList.add("active");
+        const overviewPanel = document.getElementById("overview-tab");
+        if (overviewPanel) {
+            overviewPanel.classList.add("active");
+            overviewPanel.style.display = "block";
+        }
     }
 
-    if (targetTab === 'benchmark') {
+    // 4. Update browser URL history state
+    try {
+        if (window.history && window.history.pushState) {
+            window.history.pushState(null, null, `#${cleanTabId}`);
+        }
+    } catch(e) {
+        window.location.hash = cleanTabId;
+    }
+
+    if (cleanTabId === 'benchmark') {
         setTimeout(initBenchmarkChart, 50);
     }
 
