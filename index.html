@@ -291,15 +291,15 @@
                 return 's****@gmail.com';
             }
 
-            var aadhaarRegex = /\b[2-9]\d{3}[\s-]?\d{4}[\s-]?\d{4}\b/g;
+            var aadhaarRegex = /\b(?:(?:aadhaar|adhar|adhaar|uidai)[\s:]*)?(\d{4}[\s-]?\d{4}[\s-]?\d{4})\b/gi;
             while ((match = aadhaarRegex.exec(prompt)) !== null) {
                 var orig = match[0];
-                var digits = orig.replace(/[\s-]/g, '');
+                var digits = orig.replace(/\D/g, '');
                 if (digits.length === 12) {
                     var masked = orig.includes(' ') ? 'XXXX XXXX ' + digits.substring(8) : (orig.includes('-') ? 'XXXX-XXXX-' + digits.substring(8) : 'XXXXXXXX' + digits.substring(8));
                     rawEntities.push(new SensitiveEntity({
                         entity_type: "Aadhaar Number", original_value: orig, masked_value: masked,
-                        confidence: 99.2, start_index: match.index, end_index: match.index + orig.length,
+                        confidence: 99.6, start_index: match.index, end_index: match.index + orig.length,
                         risk_level: "Critical", strategy: "Partial Masking (Last 4 Digits Visible)", reason: "Government Unique Identification Protection"
                     }));
                 }

@@ -40,10 +40,11 @@ def mask_email(val: str) -> str:
 def detect_entities(prompt: str):
     raw_entities = []
 
-    # 1. Aadhaar Number
-    for match in re.finditer(r'\b[2-9]\d{3}[\s-]?\d{4}[\s-]?\d{4}\b', prompt):
+    # 1. Aadhaar Number (Matches all 12-digit Aadhaar formats: XXXX XXXX XXXX, XXXX-XXXX-XXXX, or continuous 12 digits)
+    aadhaar_pattern = re.compile(r'\b(?i:(?:aadhaar|adhar|adhaar|uidai)[\s:]*)?([0-9]{4}[\s-]?[0-9]{4}[\s-]?[0-9]{4})\b')
+    for match in aadhaar_pattern.finditer(prompt):
         orig = match.group(0)
-        digits = re.sub(r'[\s-]', '', orig)
+        digits = re.sub(r'\D', '', orig)
         if len(digits) == 12:
             if ' ' in orig:
                 masked = f"XXXX XXXX {digits[8:]}"
@@ -55,7 +56,7 @@ def detect_entities(prompt: str):
                 entity_type="Aadhaar Number",
                 original_value=orig,
                 masked_value=masked,
-                confidence=99.4,
+                confidence=99.6,
                 start_index=match.start(),
                 end_index=match.end(),
                 risk_level="Critical",
