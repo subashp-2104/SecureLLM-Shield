@@ -722,6 +722,15 @@ tr:hover td {
     background: rgba(255, 255, 255, 0.02);
 }
 
+.logs-container, .incident-response-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
 /* Incident Response List */
 .response-list {
     display: flex;
@@ -736,12 +745,15 @@ tr:hover td {
     padding: 12px;
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    background: rgba(0, 0, 0, 0.15);
-    transition: transform var(--transition-speed);
+    background: rgba(0, 0, 0, 0.2);
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    backface-visibility: hidden;
 }
 
 .response-card:hover {
-    transform: translateX(4px);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(0, 242, 254, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.15);
 }
 
 .response-card i {
