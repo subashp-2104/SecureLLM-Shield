@@ -797,64 +797,15 @@ async function finishPipelineAnalysis(prompt) {
         if (typeSet.has("Aadhaar Number")) riskScore += 25;
         if (typeSet.has("Bank Account Number") || typeSet.has("Credit Card Number")) riskScore += 25;
         if (["API Key", "JWT Token", "Secret Key"].some(k => typeSet.has(k))) riskScore += 15;
+        if (["IFSC Code", "UPI ID", "Mobile Number"].some(k => typeSet.has(k))) riskScore += 10;
+        if (["Email Address", "Passport Number", "Driving License"].some(k => typeSet.has(k))) riskScore += 8;
+        
+        const remainingCount = detectedEntities.length - typeSet.size;
+        if (remainingCount > 0) riskScore += remainingCount * 4;
         if (injectionDetected) riskScore += 40;
         if (riskScore > 100) riskScore = 100;
         threatStatusText = (detectedEntities.length > 0 || injectionDetected) ? "YES" : "NO";
     }
-
-    // 2. Perform Non-Overlapping Universal Span Masking (end-to-start replacement)
-    // Sort descending for backwards string substitution
-    const sortedDescending = [...detectedEntities].sort((a, b) => b.start_index - a.start_index);
-
-    let sanitizedPrompt = prompt;
-    let diffHtml = escapeHtml(prompt);
-
-    // Replace in sanitizedPrompt & build highlighted diff HTML
-    sortedDescending.forEach(entity => {
-        const orig = entity.original_value;
-        const masked = entity.masked_value;
-        const start = entity.start_index;
-        const end = entity.end_index;
-
-        // Perform text substitution
-        sanitizedPrompt = sanitizedPrompt.substring(0, start) + masked + sanitizedPrompt.substring(end);
-    });
-
-    // Build diff HTML with highlights
-    // Sort ascending for diff building
-    let diffCursor = 0;
-    let builtDiffHtml = "";
-    const sortedAscending = [...detectedEntities].sort((a, b) => a.start_index - b.start_index);
-
-    sortedAscending.forEach(entity => {
-        builtDiffHtml += escapeHtml(prompt.substring(diffCursor, entity.start_index));
-        builtDiffHtml += `<mark class="masked-diff" title="${entity.entity_type}: ${escapeHtml(entity.original_value)}">${escapeHtml(entity.masked_value)}</mark>`;
-        diffCursor = entity.end_index;
-    });
-    builtDiffHtml += escapeHtml(prompt.substring(diffCursor));
-
-    // 3. Dynamic Risk Aggregation Calculation
-    // Target curve: PAN only ~30%, PAN+Aadhaar ~55%, PAN+Aadhaar+Bank ~80%, PAN+Aadhaar+Bank+API ~95%
-    let riskScore = 0;
-    const typeSet = new Set(detectedEntities.map(e => e.entity_type));
-
-    if (typeSet.has("PAN Number")) riskScore += 30;
-    if (typeSet.has("Aadhaar Number")) riskScore += 25;
-    if (typeSet.has("Bank Account Number") || typeSet.has("Credit Card Number")) riskScore += 25;
-    if (typeSet.has("API Key") || typeSet.has("JWT Token") || typeSet.has("Secret Key")) riskScore += 15;
-    if (typeSet.has("IFSC Code") || typeSet.has("UPI ID") || typeSet.has("Mobile Number")) riskScore += 10;
-    if (typeSet.has("Email Address") || typeSet.has("Passport Number") || typeSet.has("Driving License")) riskScore += 8;
-
-    // Remaining entity bonuses
-    const remainingCount = detectedEntities.length - typeSet.size;
-    riskScore += remainingCount * 4;
-
-    if (injectionDetected) {
-        riskScore += 40;
-    }
-
-    if (riskScore > 100) riskScore = 100;
-    if (riskScore === 0 && prompt.length > 0) riskScore = 0;
 
     // 4. Update UI Outputs
     const outputCont = document.getElementById("outputPromptContainer");
