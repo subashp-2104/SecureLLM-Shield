@@ -74,6 +74,27 @@
             if (window.lucide) { try { window.lucide.createIcons(); } catch(e) {} }
         }
 
+        function switchOutputView(viewType) {
+            var sanitizedWrapper = document.getElementById("sanitizedViewWrapper");
+            var diffWrapper = document.getElementById("diffViewWrapper");
+            var btnSanitized = document.getElementById("btnViewSanitized");
+            var btnDiff = document.getElementById("btnViewDiff");
+
+            if (sanitizedWrapper && diffWrapper && btnSanitized && btnDiff) {
+                if (viewType === 'diff') {
+                    sanitizedWrapper.style.display = "none";
+                    diffWrapper.style.display = "block";
+                    btnSanitized.classList.remove("active");
+                    btnDiff.classList.add("active");
+                } else {
+                    sanitizedWrapper.style.display = "block";
+                    diffWrapper.style.display = "none";
+                    btnSanitized.classList.add("active");
+                    btnDiff.classList.remove("active");
+                }
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             try {
                 var savedTheme = localStorage.getItem("securellm_theme");
