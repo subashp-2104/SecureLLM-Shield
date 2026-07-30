@@ -566,10 +566,75 @@
         }
         window.finishPipelineAnalysis = finishPipelineAnalysis;
 
+        function initOverviewCharts() {
+            if (!window.Chart) {
+                setTimeout(initOverviewCharts, 400);
+                return;
+            }
+            try {
+                var ctxLine = document.getElementById("threatTimelineChart");
+                if (ctxLine && !window.threatTimelineChartInstance) {
+                    window.threatTimelineChartInstance = new Chart(ctxLine, {
+                        type: 'line',
+                        data: {
+                            labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                            datasets: [{
+                                label: 'Threats Blocked',
+                                data: [4, 8, 15, 29, 34, 42, 48],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                                fill: true,
+                                tension: 0.4
+                            }, {
+                                label: 'PII Spans Masked',
+                                data: [12, 24, 45, 88, 120, 156, 182],
+                                borderColor: '#00f2fe',
+                                backgroundColor: 'rgba(0, 242, 254, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { labels: { color: '#94a3b8' } } },
+                            scales: {
+                                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                            }
+                        }
+                    });
+                }
+
+                var ctxPie = document.getElementById("threatDistributionChart");
+                if (ctxPie && !window.threatDistributionChartInstance) {
+                    window.threatDistributionChartInstance = new Chart(ctxPie, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Aadhaar / PAN Leaks', 'Prompt Injections', 'API Key / Secret Leaks', 'Bank / Financial Data', 'Medical Records'],
+                            datasets: [{
+                                data: [35, 25, 20, 12, 8],
+                                backgroundColor: ['#ef4444', '#ff007f', '#9d4edd', '#00f2fe', '#10b981'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } }
+                        }
+                    });
+                }
+            } catch(e) {
+                console.warn("Chart initialization fallback:", e);
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             try {
                 var savedTheme = localStorage.getItem("securellm_theme");
                 if (savedTheme) setTheme(savedTheme);
+                initOverviewCharts();
             } catch(e) {}
         });
     </script>
@@ -735,19 +800,78 @@
                                         </tr>
                                     </thead>
                                     <tbody id="ubaLogsTable">
-                                        <!-- Dynamic Logs -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <div class="incident-response-panel bg-glass">
-                            <img src="assets/security_shield.jpg" alt="Security Shield Graphic" class="card-image-banner">
-                            <h3>Auto Incident Response Status</h3>
-                            <div class="response-list" id="responseActionList">
-                                <!-- Dynamic responses -->
-                            </div>
-                        </div>
+                                         <tr>
+                                             <td>18:25:12</td>
+                                             <td>usr_admin_01</td>
+                                             <td><span class="badge badge-primary">Administrator</span></td>
+                                             <td>Aadhaar Masking Scan</td>
+                                             <td><span class="badge badge-danger">Critical Risk (98%)</span></td>
+                                             <td><span class="badge status-badge pass">Masked</span></td>
+                                         </tr>
+                                         <tr>
+                                             <td>18:22:08</td>
+                                             <td>usr_res_88</td>
+                                             <td><span class="badge badge-primary">Researcher</span></td>
+                                             <td>PAN & Bank Masking</td>
+                                             <td><span class="badge badge-danger">Critical Risk (99%)</span></td>
+                                             <td><span class="badge status-badge pass">Masked</span></td>
+                                         </tr>
+                                         <tr>
+                                             <td>18:19:55</td>
+                                             <td>usr_mgr_04</td>
+                                             <td><span class="badge badge-primary">Manager</span></td>
+                                             <td>Prompt Injection Check</td>
+                                             <td><span class="badge badge-danger">High Risk (85%)</span></td>
+                                             <td><span class="badge status-badge fail">Blocked</span></td>
+                                         </tr>
+                                         <tr>
+                                             <td>18:15:10</td>
+                                             <td>usr_emp_12</td>
+                                             <td><span class="badge badge-primary">Employee</span></td>
+                                             <td>API Key Secret Filter</td>
+                                             <td><span class="badge badge-warning">Moderate Risk (55%)</span></td>
+                                             <td><span class="badge status-badge pass">Sanitized</span></td>
+                                         </tr>
+                                         <tr>
+                                             <td>18:10:22</td>
+                                             <td>usr_gst_99</td>
+                                             <td><span class="badge badge-primary">Guest</span></td>
+                                             <td>Safe Enterprise Query</td>
+                                             <td><span class="badge badge-safe">Safe (0%)</span></td>
+                                             <td><span class="badge status-badge pass">Cleared</span></td>
+                                         </tr>
+                                     </tbody>
+                                 </table>
+                             </div>
+                         </div>
+                         
+                         <div class="incident-response-panel bg-glass">
+                             <img src="assets/security_shield.jpg" alt="Security Shield Graphic" class="card-image-banner">
+                             <h3>Auto Incident Response Status</h3>
+                             <div class="response-list" id="responseActionList">
+                                 <div class="response-card active-alert">
+                                     <i data-lucide="shield-alert" class="text-red"></i>
+                                     <div>
+                                         <h5>Aadhaar & PAN Masked</h5>
+                                         <p>Sanitized 2 national identity entities with 99.6% confidence</p>
+                                     </div>
+                                 </div>
+                                 <div class="response-card active-alert">
+                                     <i data-lucide="shield-alert" class="text-yellow"></i>
+                                     <div>
+                                         <h5>Prompt Injection Blocked</h5>
+                                         <p>Adversarial goal jailbreak attempt neutralised with risk index 98%</p>
+                                     </div>
+                                 </div>
+                                 <div class="response-card resolved-alert">
+                                     <i data-lucide="check-circle" class="text-green"></i>
+                                     <div>
+                                         <h5>Policy Active</h5>
+                                         <p>Active policy profile set to Enterprise (GDPR/HIPAA Gate active)</p>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
                     </div>
                 </section>
 
