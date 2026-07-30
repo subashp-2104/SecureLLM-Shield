@@ -48,6 +48,16 @@
                 }
             }
 
+            if (cleanId === 'benchmark') {
+                if (typeof window.initModelBenchmarkChart === 'function') {
+                    setTimeout(window.initModelBenchmarkChart, 50);
+                }
+            } else if (cleanId === 'overview') {
+                if (typeof window.initOverviewCharts === 'function') {
+                    setTimeout(window.initOverviewCharts, 50);
+                }
+            }
+
             try {
                 if (window.history && window.history.pushState) {
                     window.history.pushState(null, null, "#" + cleanId);
@@ -658,13 +668,65 @@
                 alert("✓ Cryptographic Chain Verification Passed!\n- 4/4 Block Hashes Validated\n- Parent-Child Link Integrity: 100% Intact\n- SHA-256 Cryptographic Audit Ledger: SECURE & TAMPER-FREE");
             }, 500);
         }
-        window.verifyLedgerIntegrity = verifyLedgerIntegrity;
+        function initModelBenchmarkChart() {
+            if (!window.Chart) {
+                setTimeout(initModelBenchmarkChart, 400);
+                return;
+            }
+            var ctxBench = document.getElementById('modelBenchmarkChart');
+            if (!ctxBench) return;
+            try {
+                if (window.modelBenchmarkChartInstance) {
+                    window.modelBenchmarkChartInstance.destroy();
+                }
+                window.modelBenchmarkChartInstance = new Chart(ctxBench, {
+                    type: 'bubble',
+                    data: {
+                        datasets: [
+                            { label: 'Claude 3.5 Sonnet (98.9% | 290ms)', data: [{ x: 290, y: 98.9, r: 16 }], backgroundColor: '#ff007f' },
+                            { label: 'GPT-4o (97.8% | 240ms)', data: [{ x: 240, y: 97.8, r: 14 }], backgroundColor: '#00f2fe' },
+                            { label: 'Llama 3.1 70B (93.2% | 180ms)', data: [{ x: 180, y: 93.2, r: 12 }], backgroundColor: '#10b981' },
+                            { label: 'Gemma 2 27B (91.5% | 130ms)', data: [{ x: 130, y: 91.5, r: 10 }], backgroundColor: '#f59e0b' },
+                            { label: 'DeepSeek V3 (87.9% | 320ms)', data: [{ x: 320, y: 87.9, r: 11 }], backgroundColor: '#9d4edd' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Average Latency (ms)', color: '#94a3b8' },
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#94a3b8' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Safety Index (0-100)', color: '#94a3b8' },
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#94a3b8' },
+                                min: 80,
+                                max: 100
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#94a3b8', font: { size: 11 } }
+                            }
+                        }
+                    }
+                });
+            } catch(e) {
+                console.warn("Benchmark chart init error:", e);
+            }
+        }
+        window.initModelBenchmarkChart = initModelBenchmarkChart;
 
         document.addEventListener("DOMContentLoaded", function() {
             try {
                 var savedTheme = localStorage.getItem("securellm_theme");
                 if (savedTheme) setTheme(savedTheme);
                 initOverviewCharts();
+                initModelBenchmarkChart();
             } catch(e) {}
         });
     </script>
