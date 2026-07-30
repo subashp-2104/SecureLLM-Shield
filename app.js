@@ -131,35 +131,67 @@ window.switchTab = function(tabId, evt) {
 // Initial setup on load
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Initialize time
-    updateSystemTime();
-    setInterval(updateSystemTime, 1000);
+    try {
+        updateSystemTime();
+        setInterval(updateSystemTime, 1000);
+    } catch(e) { console.warn("Time init warning:", e); }
 
-    // 2. Initial hash-based tab navigation
-    const initialHash = window.location.hash.replace("#", "") || "overview";
-    switchTab(initialHash);
-    window.addEventListener("hashchange", () => {
-        const newHash = window.location.hash.replace("#", "") || "overview";
-        switchTab(newHash);
-    });
+    // 2. Attach direct click handlers to all sidebar nav buttons
+    try {
+        document.querySelectorAll(".nav-item").forEach(item => {
+            item.addEventListener("click", (evt) => {
+                if (evt) {
+                    if (typeof evt.preventDefault === 'function') evt.preventDefault();
+                    if (typeof evt.stopPropagation === 'function') evt.stopPropagation();
+                }
+                const onclickAttr = item.getAttribute("onclick") || "";
+                const match = onclickAttr.match(/switchTab\('([^']+)'/);
+                if (match && match[1]) {
+                    switchTab(match[1], evt);
+                }
+            });
+        });
+    } catch(e) { console.warn("Nav listener warning:", e); }
 
-    // 3. Load Lucide icons
-    if (window.lucide) {
-        window.lucide.createIcons();
-    }
+    // 3. Initial hash-based tab navigation
+    try {
+        const initialHash = window.location.hash.replace("#", "") || "overview";
+        switchTab(initialHash);
+        window.addEventListener("hashchange", () => {
+            const newHash = window.location.hash.replace("#", "") || "overview";
+            switchTab(newHash);
+        });
+    } catch(e) { console.warn("Hash nav warning:", e); }
 
-    // 4. Initialize Blockchain with Genesis Block
-    addBlockToLedger("Genesis Block", "SecureLLM Shield Security Chain initialized.", "SYSTEM", "0000000000000000");
+    // 4. Load Lucide icons
+    try {
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    } catch(e) { console.warn("Lucide warning:", e); }
 
-    // 5. Initialize charts
-    initCharts();
+    // 5. Initialize Blockchain with Genesis Block
+    try {
+        addBlockToLedger("Genesis Block", "SecureLLM Shield Security Chain initialized.", "SYSTEM", "0000000000000000");
+    } catch(e) { console.warn("Blockchain warning:", e); }
 
-    // 6. Populate initial tables/logs
-    populateUBALogs();
-    populateIncidentStatus();
-    runHomomorphicSimulation();
+    // 6. Initialize charts safely
+    try {
+        initCharts();
+    } catch(e) { console.warn("Charts init warning:", e); }
 
-    // 7. Preload preset dropdown select event
-    document.getElementById("samplePrompts").value = "";
+    // 7. Populate initial tables/logs safely
+    try {
+        populateUBALogs();
+        populateIncidentStatus();
+        runHomomorphicSimulation();
+    } catch(e) { console.warn("Table population warning:", e); }
+
+    // 8. Preload preset dropdown select event
+    try {
+        const promptSelect = document.getElementById("samplePrompts");
+        if (promptSelect) promptSelect.value = "";
+    } catch(e) {}
 });
 
 // UI Theme Picker
@@ -1585,55 +1617,66 @@ function pushIncidentResponse(title, desc, color) {
 
 // Chart.js Visualizations
 function initCharts() {
-    // 1. Threat Timeline Chart
-    const ctxTimeline = document.getElementById('threatTimelineChart').getContext('2d');
-    threatTimelineChartInstance = new Chart(ctxTimeline, {
-        type: 'line',
-        data: {
-            labels: ['02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00'],
-            datasets: [{
-                label: 'Threats / Attacks Prevented',
-                data: [4, 2, 7, 5, 12, 18, 9, 14, 22, 19, 11, 6],
-                borderColor: '#00f2fe',
-                backgroundColor: 'rgba(0, 242, 254, 0.08)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
-                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-            },
-            plugins: {
-                legend: { display: false }
-            }
-        }
-    });
+    if (typeof Chart === 'undefined') return;
 
-    // 2. Threat Distribution Chart
-    const ctxDist = document.getElementById('threatDistributionChart').getContext('2d');
-    threatDistributionChartInstance = new Chart(ctxDist, {
-        type: 'doughnut',
-        data: {
-            labels: ['PII Aadhaar/PAN', 'Prompt Injections', 'API Secret Leakage', 'Credit Cards/Fin', 'Medical Records'],
-            datasets: [{
-                data: [35, 25, 18, 12, 10],
-                backgroundColor: [
-                    '#00f2fe',
-                    '#ff007f',
-                    '#9d4edd',
-                    '#ffb703',
-                    '#39ff14'
-                ],
-                borderWidth: 1,
-                borderColor: 'rgba(0,0,0,0.5)'
-            }]
-        },
-        options: {
+    try {
+        // 1. Threat Timeline Chart
+        const elTimeline = document.getElementById('threatTimelineChart');
+        if (elTimeline) {
+            const ctxTimeline = elTimeline.getContext('2d');
+            if (threatTimelineChartInstance) threatTimelineChartInstance.destroy();
+            threatTimelineChartInstance = new Chart(ctxTimeline, {
+                type: 'line',
+                data: {
+                    labels: ['02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00'],
+                    datasets: [{
+                        label: 'Threats / Attacks Prevented',
+                        data: [4, 2, 7, 5, 12, 18, 9, 14, 22, 19, 11, 6],
+                        borderColor: '#00f2fe',
+                        backgroundColor: 'rgba(0, 242, 254, 0.08)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    } catch(e) { console.warn("Timeline chart error:", e); }
+
+    try {
+        // 2. Threat Distribution Chart
+        const elDist = document.getElementById('threatDistributionChart');
+        if (elDist) {
+            const ctxDist = elDist.getContext('2d');
+            if (threatDistributionChartInstance) threatDistributionChartInstance.destroy();
+            threatDistributionChartInstance = new Chart(ctxDist, {
+                type: 'doughnut',
+                data: {
+                    labels: ['PII Aadhaar/PAN', 'Prompt Injections', 'API Secret Leakage', 'Credit Cards/Fin', 'Medical Records'],
+                    datasets: [{
+                        data: [35, 25, 18, 12, 10],
+                        backgroundColor: ['#00f2fe', '#ff007f', '#9d4edd', '#ffb703', '#39ff14'],
+                        borderWidth: 1,
+                        borderColor: 'rgba(0,0,0,0.5)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+    } catch(e) { console.warn("Distribution chart error:", e); }
+}
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
