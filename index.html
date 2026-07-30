@@ -988,7 +988,142 @@
                 container.innerHTML = '<div class="he-step"><span>1. Encrypt Payloads:</span> <code>' + encA + '</code>, <code>' + encB + '</code></div><div class="he-step"><span>2. Encrypted Math Operation:</span> <code>HE_Multiply(' + encA + ', ' + encB + ')</code></div><div class="he-step highlight"><span>3. Decrypted Result:</span> <strong class="text-green">₹ ' + result.toLocaleString('en-IN') + '</strong> (Math completed without decrypting raw data)</div>';
             }
         }
-        window.runHomomorphicSimulation = runHomomorphicSimulation;
+        function updateComplianceScore() {
+            var ruleAadhaar = document.getElementById("ruleAadhaar") ? document.getElementById("ruleAadhaar").checked : true;
+            var rulePAN = document.getElementById("rulePAN") ? document.getElementById("rulePAN").checked : true;
+            var ruleBank = document.getElementById("ruleBank") ? document.getElementById("ruleBank").checked : true;
+            var ruleMedical = document.getElementById("ruleMedical") ? document.getElementById("ruleMedical").checked : true;
+            var ruleSecrets = document.getElementById("ruleSecrets") ? document.getElementById("ruleSecrets").checked : true;
+            var ruleInjections = document.getElementById("ruleInjections") ? document.getElementById("ruleInjections").checked : true;
+            var ruleJailbreaks = document.getElementById("ruleJailbreaks") ? document.getElementById("ruleJailbreaks").checked : true;
+
+            var score = 50;
+            if (ruleAadhaar) score += 8;
+            if (rulePAN) score += 7;
+            if (ruleBank) score += 10;
+            if (ruleMedical) score += 10;
+            if (ruleSecrets) score += 5;
+            if (ruleInjections) score += 5;
+            if (ruleJailbreaks) score += 5;
+            if (score > 100) score = 100;
+
+            var scoreEl = document.getElementById("complianceScore");
+            if (scoreEl) scoreEl.textContent = score + "%";
+
+            var badgHipaa = document.getElementById("badge-hipaa");
+            var chkMedical = document.getElementById("chk-hipaa-medical");
+            var chkEncrypt = document.getElementById("chk-hipaa-encrypt");
+            if (badgHipaa) {
+                if (ruleMedical && ruleBank) {
+                    badgHipaa.textContent = "Passed";
+                    badgHipaa.className = "status-badge pass";
+                    if (chkMedical) chkMedical.className = "checked";
+                    if (chkEncrypt) chkEncrypt.className = "checked";
+                } else {
+                    badgHipaa.textContent = "Incomplete";
+                    badgHipaa.className = "status-badge fail";
+                    if (chkMedical) chkMedical.className = ruleMedical ? "checked" : "unchecked";
+                    if (chkEncrypt) chkEncrypt.className = ruleBank ? "checked" : "unchecked";
+                }
+            }
+
+            var badgDpdp = document.getElementById("badge-dpdp");
+            var chkDpdp = document.getElementById("chk-dpdp-aadhaar");
+            if (badgDpdp) {
+                if (ruleAadhaar && rulePAN) {
+                    badgDpdp.textContent = "Passed";
+                    badgDpdp.className = "status-badge pass";
+                    if (chkDpdp) chkDpdp.className = "checked";
+                } else {
+                    badgDpdp.textContent = "Deficient";
+                    badgDpdp.className = "status-badge fail";
+                    if (chkDpdp) chkDpdp.className = "unchecked";
+                }
+            }
+
+            var badgEu = document.getElementById("badge-euai");
+            if (badgEu) {
+                if (ruleInjections && ruleJailbreaks) {
+                    badgEu.textContent = "High Posture";
+                    badgEu.className = "status-badge pass";
+                } else {
+                    badgEu.textContent = "Risky";
+                    badgEu.className = "status-badge fail";
+                }
+            }
+        }
+        window.updateComplianceScore = updateComplianceScore;
+
+        function onRuleToggled() {
+            updateComplianceScore();
+        }
+        window.onRuleToggled = onRuleToggled;
+
+        function selectPolicyPreset(presetName) {
+            window.activePolicy = presetName;
+            
+            var cards = document.querySelectorAll(".policy-preset-card");
+            cards.forEach(function(card) {
+                card.classList.remove("active");
+                if (card.id === 'preset-' + presetName.toLowerCase()) {
+                    card.classList.add("active");
+                }
+            });
+
+            var policyTxt = document.getElementById("activePolicyText");
+            if (policyTxt) policyTxt.textContent = 'Policy: ' + presetName;
+            
+            var pulse = document.getElementById("policyPulse");
+            if (pulse) pulse.className = "pulse-dot active-policy-pulse green";
+
+            var ruleAadhaar = document.getElementById("ruleAadhaar");
+            var rulePAN = document.getElementById("rulePAN");
+            var ruleBank = document.getElementById("ruleBank");
+            var ruleMedical = document.getElementById("ruleMedical");
+            var ruleSecrets = document.getElementById("ruleSecrets");
+            var ruleInjections = document.getElementById("ruleInjections");
+            var ruleJailbreaks = document.getElementById("ruleJailbreaks");
+
+            if (ruleAadhaar && rulePAN && ruleBank && ruleMedical && ruleSecrets && ruleInjections && ruleJailbreaks) {
+                if (presetName === 'Healthcare') {
+                    ruleAadhaar.checked = true;
+                    rulePAN.checked = false;
+                    ruleBank.checked = true;
+                    ruleMedical.checked = true;
+                    ruleSecrets.checked = false;
+                    ruleInjections.checked = true;
+                    ruleJailbreaks.checked = true;
+                } else if (presetName === 'Banking') {
+                    ruleAadhaar.checked = true;
+                    rulePAN.checked = true;
+                    ruleBank.checked = true;
+                    ruleMedical.checked = false;
+                    ruleSecrets.checked = true;
+                    ruleInjections.checked = true;
+                    ruleJailbreaks.checked = true;
+                } else if (presetName === 'Government') {
+                    ruleAadhaar.checked = true;
+                    rulePAN.checked = true;
+                    ruleBank.checked = true;
+                    ruleMedical.checked = false;
+                    ruleSecrets.checked = false;
+                    ruleInjections.checked = true;
+                    ruleJailbreaks.checked = true;
+                } else if (presetName === 'Enterprise') {
+                    ruleAadhaar.checked = true;
+                    rulePAN.checked = true;
+                    ruleBank.checked = true;
+                    ruleMedical.checked = false;
+                    ruleSecrets.checked = true;
+                    ruleInjections.checked = true;
+                    ruleJailbreaks.checked = true;
+                }
+            }
+
+            onRuleToggled();
+            if (window.lucide) { try { window.lucide.createIcons(); } catch(e) {} }
+        }
+        window.selectPolicyPreset = selectPolicyPreset;
 
         document.addEventListener("DOMContentLoaded", function() {
             try {
@@ -999,6 +1134,7 @@
                 updateDPSimulator();
                 runHomomorphicSimulation();
                 simulateRAG();
+                updateComplianceScore();
             } catch(e) {}
         });
     </script>
