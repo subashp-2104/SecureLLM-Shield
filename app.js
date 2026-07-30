@@ -751,7 +751,7 @@ async function finishPipelineAnalysis(prompt) {
         if (typeSet.has("PAN Number")) riskScore += 30;
         if (typeSet.has("Aadhaar Number")) riskScore += 25;
         if (typeSet.has("Bank Account Number") || typeSet.has("Credit Card Number")) riskScore += 25;
-        if (any(k in typeSet for k in ["API Key", "JWT Token", "Secret Key"])) riskScore += 15;
+        if (["API Key", "JWT Token", "Secret Key"].some(k => typeSet.has(k))) riskScore += 15;
         if (injectionDetected) riskScore += 40;
         if (riskScore > 100) riskScore = 100;
         threatStatusText = (detectedEntities.length > 0 || injectionDetected) ? "YES" : "NO";
