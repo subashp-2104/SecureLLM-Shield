@@ -1189,7 +1189,46 @@
             if (input) input.value = query;
             sendCopilotMessage();
         }
-        window.copilotQuickQuery = copilotQuickQuery;
+        function openStatusAuditModal(statusType, title, details) {
+            var modal = document.getElementById("statusAuditModal");
+            var titleEl = document.getElementById("statusModalTitle");
+            var bodyEl = document.getElementById("statusModalBody");
+            var badgeEl = document.getElementById("statusModalBadge");
+
+            if (!modal) return;
+
+            if (titleEl) titleEl.textContent = title;
+            
+            var badgeClass = "badge-safe";
+            if (statusType === 'Masked' || statusType === 'Sanitized') badgeClass = "badge-primary";
+            else if (statusType === 'Blocked') badgeClass = "badge-danger";
+            else if (statusType === 'Cleared' || statusType === 'Passed') badgeClass = "badge-safe";
+
+            if (badgeEl) {
+                badgeEl.textContent = statusType.toUpperCase();
+                badgeEl.className = "badge " + badgeClass;
+            }
+
+            var html = '<div class="audit-details-grid">';
+            html += '<div class="audit-row"><strong>Timestamp:</strong> <span>' + (details.time || "Real-time Event Log") + '</span></div>';
+            html += '<div class="audit-row"><strong>User Session:</strong> <span>' + (details.user || "usr_admin_01 (Administrator)") + '</span></div>';
+            html += '<div class="audit-row"><strong>Protection Layer:</strong> <span>' + (details.layer || "Regex Engine + NER Spans") + '</span></div>';
+            html += '<div class="audit-row"><strong>Compliance Rule:</strong> <span>' + (details.compliance || "DPDP Act 2023 / HIPAA Sec. 164") + '</span></div>';
+            html += '<div class="audit-row"><strong>Risk Score:</strong> <span class="text-orange">' + (details.risk || "High (85%)") + '</span></div>';
+            html += '</div>';
+            html += '<div class="audit-log-box"><h4>Security Audit Log Trace</h4><pre>' + (details.log || "Gateway decision executed cleanly. Zero sensitive leakage detected.") + '</pre></div>';
+
+            if (bodyEl) bodyEl.innerHTML = html;
+            modal.classList.add("active");
+            if (window.lucide) { try { window.lucide.createIcons(); } catch(e) {} }
+        }
+        window.openStatusAuditModal = openStatusAuditModal;
+
+        function closeStatusAuditModal() {
+            var modal = document.getElementById("statusAuditModal");
+            if (modal) modal.classList.remove("active");
+        }
+        window.closeStatusAuditModal = closeStatusAuditModal;
 
         document.addEventListener("DOMContentLoaded", function() {
             try {
@@ -1370,47 +1409,47 @@
                                         </tr>
                                     </thead>
                                     <tbody id="ubaLogsTable">
-                                         <tr>
-                                             <td>18:25:12</td>
-                                             <td>usr_admin_01</td>
-                                             <td><span class="badge badge-primary">Administrator</span></td>
-                                             <td>Aadhaar Masking Scan</td>
-                                             <td><span class="badge badge-danger">CRITICAL (98%)</span></td>
-                                             <td><span class="badge status-badge pass">Masked</span></td>
-                                         </tr>
-                                         <tr>
-                                             <td>18:22:08</td>
-                                             <td>usr_res_88</td>
-                                             <td><span class="badge badge-primary">Researcher</span></td>
-                                             <td>PAN & Bank Masking</td>
-                                             <td><span class="badge badge-danger">CRITICAL (99%)</span></td>
-                                             <td><span class="badge status-badge pass">Masked</span></td>
-                                         </tr>
-                                         <tr>
-                                             <td>18:19:55</td>
-                                             <td>usr_mgr_04</td>
-                                             <td><span class="badge badge-primary">Manager</span></td>
-                                             <td>Prompt Injection Check</td>
-                                             <td><span class="badge badge-warning">HIGH (85%)</span></td>
-                                             <td><span class="badge status-badge fail">Blocked</span></td>
-                                         </tr>
-                                         <tr>
-                                             <td>18:15:10</td>
-                                             <td>usr_emp_12</td>
-                                             <td><span class="badge badge-primary">Employee</span></td>
-                                             <td>API Key Secret Filter</td>
-                                             <td><span class="badge badge-primary">MODERATE (55%)</span></td>
-                                             <td><span class="badge status-badge pass">Sanitized</span></td>
-                                         </tr>
-                                         <tr>
-                                             <td>18:10:22</td>
-                                             <td>usr_gst_99</td>
-                                             <td><span class="badge badge-primary">Guest</span></td>
-                                             <td>Safe Enterprise Query</td>
-                                             <td><span class="badge badge-safe">SAFE (0%)</span></td>
-                                             <td><span class="badge status-badge pass">Cleared</span></td>
-                                         </tr>
-                                     </tbody>
+                                          <tr onclick="openStatusAuditModal('Masked', 'Aadhaar Masking Scan Log', {time:'18:25:12', user:'usr_admin_01 (Administrator)', layer:'Regex Engine + Transformer NER Spans', compliance:'DPDP Act 2023 (India)', risk:'Critical (98%)', log:'MATCH: 12-digit Aadhaar pattern found.\nACTION: Partial masking applied (XXXX XXXX 9012).\nDECISION: Outbound prompt sanitized prior to LLM delivery.'})" style="cursor: pointer;" title="Click to view Security Audit Log">
+                                              <td>18:25:12</td>
+                                              <td>usr_admin_01</td>
+                                              <td><span class="badge badge-primary">Administrator</span></td>
+                                              <td>Aadhaar Masking Scan</td>
+                                              <td><span class="badge badge-danger">CRITICAL (98%)</span></td>
+                                              <td><span class="badge status-badge pass">Masked 🔍</span></td>
+                                          </tr>
+                                          <tr onclick="openStatusAuditModal('Masked', 'PAN & Bank Masking Log', {time:'18:22:08', user:'usr_res_88 (Researcher)', layer:'PCI-DSS & Financial Filter', compliance:'RBI Cyber Framework', risk:'Critical (99%)', log:'MATCH: PAN Card ABCDE1234F & Bank Acc 12345678901.\nACTION: Transformed to XXXXX1234F & XXXXXXX8901.\nDECISION: Sensitive credentials shielded.'})" style="cursor: pointer;" title="Click to view Security Audit Log">
+                                              <td>18:22:08</td>
+                                              <td>usr_res_88</td>
+                                              <td><span class="badge badge-primary">Researcher</span></td>
+                                              <td>PAN & Bank Masking</td>
+                                              <td><span class="badge badge-danger">CRITICAL (99%)</span></td>
+                                              <td><span class="badge status-badge pass">Masked 🔍</span></td>
+                                          </tr>
+                                          <tr onclick="openStatusAuditModal('Blocked', 'Prompt Injection Defense Log', {time:'18:19:55', user:'usr_mgr_04 (Manager)', layer:'DeBERTa Transformer Classifier', compliance:'EU AI Act Safety Gate', risk:'High (85%)', log:'ATTACK TYPE: Do-Anything-Now (DAN) Jailbreak.\nPATTERN: Ignore previous system instructions.\nACTION: Request blocked at Gateway. Prompt denied.'})" style="cursor: pointer;" title="Click to view Security Audit Log">
+                                              <td>18:19:55</td>
+                                              <td>usr_mgr_04</td>
+                                              <td><span class="badge badge-primary">Manager</span></td>
+                                              <td>Prompt Injection Check</td>
+                                              <td><span class="badge badge-warning">HIGH (85%)</span></td>
+                                              <td><span class="badge status-badge fail">Blocked 🔍</span></td>
+                                          </tr>
+                                          <tr onclick="openStatusAuditModal('Sanitized', 'API Key Secret Filter Log', {time:'18:15:10', user:'usr_emp_12 (Employee)', layer:'Secret Pattern Detection Layer', compliance:'SOC2 Type II Controls', risk:'Moderate (55%)', log:'MATCH: Developer secret key prefix (sk_live_...).\nACTION: Replaced token with [API_KEY_SECRET_REDACTED].\nDECISION: Redacted developer credentials.'})" style="cursor: pointer;" title="Click to view Security Audit Log">
+                                              <td>18:15:10</td>
+                                              <td>usr_emp_12</td>
+                                              <td><span class="badge badge-primary">Employee</span></td>
+                                              <td>API Key Secret Filter</td>
+                                              <td><span class="badge badge-primary">MODERATE (55%)</span></td>
+                                              <td><span class="badge status-badge pass">Sanitized 🔍</span></td>
+                                          </tr>
+                                          <tr onclick="openStatusAuditModal('Cleared', 'Safe Enterprise Query Log', {time:'18:10:22', user:'usr_gst_99 (Guest)', layer:'Standard Risk Aggregator', compliance:'GDPR Data Minimization', risk:'Safe (0%)', log:'ANALYSIS: Clean prompt payload with 0 PII spans.\nACTION: Approved for LLM inference.\nDECISION: Request Cleared.'})" style="cursor: pointer;" title="Click to view Security Audit Log">
+                                              <td>18:10:22</td>
+                                              <td>usr_gst_99</td>
+                                              <td><span class="badge badge-primary">Guest</span></td>
+                                              <td>Safe Enterprise Query</td>
+                                              <td><span class="badge badge-safe">SAFE (0%)</span></td>
+                                              <td><span class="badge status-badge pass">Cleared 🔍</span></td>
+                                          </tr>
+                                      </tbody>
                                  </table>
                              </div>
                          </div>
@@ -1419,24 +1458,24 @@
                              <img src="assets/security_shield.jpg" alt="Security Shield Graphic" class="card-image-banner">
                              <h3>Auto Incident Response Status</h3>
                              <div class="response-list" id="responseActionList">
-                                 <div class="response-card active-alert">
+                                 <div class="response-card active-alert" onclick="openStatusAuditModal('Masked', 'Aadhaar & PAN Masked Incident', {time:'Real-time', user:'System Gateway', layer:'National Identity Protection', compliance:'DPDP Act 2023', risk:'Critical (98%)', log:'Sanitized 2 national identity entities with 99.6% confidence.\nIdentity tags scrubbed prior to outbound LLM delivery.'})" style="cursor: pointer;" title="Click to inspect incident status">
                                      <i data-lucide="shield-alert" class="text-red"></i>
                                      <div>
-                                         <h5>Aadhaar & PAN Masked</h5>
+                                         <h5>Aadhaar & PAN Masked 🔍</h5>
                                          <p>Sanitized 2 national identity entities with 99.6% confidence</p>
                                      </div>
                                  </div>
-                                 <div class="response-card active-alert">
+                                 <div class="response-card active-alert" onclick="openStatusAuditModal('Blocked', 'Prompt Injection Blocked Incident', {time:'Real-time', user:'System Gateway', layer:'Adversarial Defense Layer', compliance:'EU AI Act Safety Gate', risk:'High (98%)', log:'Adversarial goal jailbreak attempt neutralised with risk index 98%.\nSession logged in security audit ledger.'})" style="cursor: pointer;" title="Click to inspect incident status">
                                      <i data-lucide="shield-alert" class="text-yellow"></i>
                                      <div>
-                                         <h5>Prompt Injection Blocked</h5>
+                                         <h5>Prompt Injection Blocked 🔍</h5>
                                          <p>Adversarial goal jailbreak attempt neutralised with risk index 98%</p>
                                      </div>
                                  </div>
-                                 <div class="response-card resolved-alert">
+                                 <div class="response-card resolved-alert" onclick="openStatusAuditModal('Passed', 'Active Policy Profile Status', {time:'Real-time', user:'Administrator', layer:'Adaptive Policy Engine', compliance:'Enterprise GDPR & HIPAA Compliance', risk:'Safe (0%)', log:'Active policy profile set to Enterprise.\nAll 20 PII detectors and multi-stage injection filters active.'})" style="cursor: pointer;" title="Click to inspect incident status">
                                      <i data-lucide="check-circle" class="text-green"></i>
                                      <div>
-                                         <h5>Policy Active</h5>
+                                         <h5>Policy Active 🔍</h5>
                                          <p>Active policy profile set to Enterprise (GDPR/HIPAA Gate active)</p>
                                      </div>
                                  </div>
@@ -2183,6 +2222,20 @@
                 <button class="send-btn" onclick="sendCopilotMessage()"><i data-lucide="send"></i></button>
             </div>
         </aside>
+    <!-- Security Audit Details Modal -->
+    <div class="modal-overlay" id="statusAuditModal" onclick="if(event.target === this) closeStatusAuditModal()">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i data-lucide="shield-check" class="text-blue"></i> <span id="statusModalTitle">Security Audit Details</span></h3>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span id="statusModalBadge" class="badge badge-primary">STATUS</span>
+                    <button class="modal-close-btn" onclick="closeStatusAuditModal()"><i data-lucide="x"></i></button>
+                </div>
+            </div>
+            <div class="modal-body" id="statusModalBody">
+                <!-- Dynamic audit details populated by JavaScript -->
+            </div>
+        </div>
     </div>
 
     <!-- Application Initialization Script -->
