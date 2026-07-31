@@ -88,19 +88,29 @@ An embedded AI assistant drawer providing instant guidance on HIPAA, GDPR, DPDP 
 
 ## ⚡ Installation & Running Guide
 
-### 1. Requirements
-- Python 3.8+
-- Modern Web Browser (Chrome, Edge, Firefox, Safari)
+### 💻 Running in Visual Studio Code (VS Code)
 
-### 2. Clone & Run Backend Application Server
-```bash
-git clone https://github.com/subashp-2104/SecureLLM-Shield.git
-cd SecureLLM-Shield
-python app.py
-```
+1. **Open Project Folder in VS Code:**
+   - Launch Visual Studio Code.
+   - Click **File ➔ Open Folder...** (`Ctrl + K, Ctrl + O`) and select the `Secure LLM Shield` directory.
 
-The master application server will start at:
-👉 **[http://localhost:8000](http://localhost:8000)**
+2. **Open Integrated Terminal:**
+   - Press **`Ctrl + ~`** (or go to top menu **Terminal ➔ New Terminal**).
+
+3. **Start Python Application Server:**
+   ```powershell
+   python app.py
+   ```
+
+4. **Launch Application in Browser:**
+   - Open your web browser and go to:
+     👉 **[http://localhost:8000](http://localhost:8000)** (or `Ctrl + Click` the terminal link `http://127.0.0.1:8000`).
+
+---
+
+### 🔍 Interactive Status Inspection & Audit Dialog
+- **Single-Line Risk Classification:** All risk labels (`CRITICAL (98%)`, `HIGH (85%)`, `MODERATE (55%)`, `SAFE (0%)`) are formatted on a straight single line with zero text wrapping.
+- **Clickable Status Badges & Cards:** Click ANY status badge (`Masked 🔍`, `Blocked 🔍`, `Sanitized 🔍`, `Cleared 🔍`) in the **UBA Table** or ANY card under **Auto Incident Response Status** to open an interactive glassmorphic **Security Audit Details** modal displaying timestamp, user session, compliance rules, and raw log trace.
 
 ---
 
