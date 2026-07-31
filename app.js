@@ -1503,20 +1503,20 @@ function appendCopilotMessage(text, sender) {
 function populateUBALogs() {
     const tableBody = document.getElementById("ubaLogsTable");
     const mockLogs = [
-        { time: "07:30:12", user: "usr-8891", role: "Employee", action: "Prompt Query", risk: "Low (12%)", status: "Passed" },
-        { time: "07:29:45", user: "usr-0092", role: "Guest", action: "Document RAG Search", risk: "Suspicious (48%)", status: "Masked" },
-        { time: "07:28:11", user: "usr-4412", role: "Manager", action: "Policy Mutation", risk: "Normal (5%)", status: "Audited" },
-        { time: "07:25:34", user: "usr-9021", role: "Guest", action: "Jailbreak Prompt", risk: "Malicious (80%)", status: "Blocked" }
+        { time: "07:30:12", user: "usr-8891", role: "Employee", action: "Prompt Query", risk: "SAFE (12%)", badgeClass: "badge-safe", status: "Cleared" },
+        { time: "07:29:45", user: "usr-0092", role: "Guest", action: "Document RAG Search", risk: "MODERATE (48%)", badgeClass: "badge-primary", status: "Masked" },
+        { time: "07:28:11", user: "usr-4412", role: "Manager", action: "Policy Mutation", risk: "SAFE (5%)", badgeClass: "badge-safe", status: "Audited" },
+        { time: "07:25:34", user: "usr-9021", role: "Guest", action: "Jailbreak Prompt", risk: "CRITICAL (80%)", badgeClass: "badge-danger", status: "Blocked" }
     ];
 
     tableBody.innerHTML = mockLogs.map(log => `
         <tr>
             <td class="font-bold">${log.time}</td>
             <td>${log.user}</td>
-            <td><span class="badge badge-primary" style="border:none; padding:2px 8px;">${log.role}</span></td>
+            <td><span class="badge badge-primary">${log.role}</span></td>
             <td>${log.action}</td>
-            <td class="${log.risk.includes("Malicious") ? "text-red font-bold" : log.risk.includes("Suspicious") ? "text-orange" : "text-green"}">${log.risk}</td>
-            <td><span class="status-badge ${log.status === "Blocked" ? "fail" : "pass"}">${log.status}</span></td>
+            <td><span class="badge ${log.badgeClass}">${log.risk}</span></td>
+            <td><span class="badge status-badge ${log.status === "Blocked" ? "fail" : "pass"}">${log.status}</span></td>
         </tr>
     `).join("");
 }
