@@ -6,7 +6,31 @@ SecureLLM Shield is an enterprise-grade AI security gateway, privacy engineering
 
 ---
 
-## 🌟 Core Features & Modules
+## 🌟 Key Project Highlights & Updates
+
+- **📊 College Project Review Presentation File (`.pptx`):**
+  - Includes `SecureLLM_Shield_Presentation.pptx` containing **18 professional slides** formatted for academic project reviews.
+  - Team Details: **BARATHKUMAR M** (Reg No: `111923AM01007`) & **SUBASH P** (Reg No: `111923AM02052`), Dept of AI & ML.
+  - Formatted in 16:9 Widescreen with Dark Blue (`#0B132B`), Electric Cyan (`#00F2FE`), and Neon Teal (`#48CAE4`) cybersecurity theme.
+  - Embedded high-resolution graphics (`assets/security_shield.jpg` and `assets/threat_nodes.jpg`) and speaker notes for every slide.
+
+- **🛡️ Universal 20-Entity Detection Matrix & Quick Test Presets:**
+  - Interactive matrix panel positioned under Prompt Sandbox with zero blank space.
+  - Quick test buttons: **`Multi-Entity Test`**, **`DAN Jailbreak Attack`**, and **`API Secret Leakage`**.
+  - Displays live PII badges (**Aadhaar**, **PAN**, **Credit Cards**, **Bank Acc**, **IFSC**, **UPI ID**, **API Keys**, **Medical**) and latency chips (`< 45ms`, `99.8% Accuracy`).
+
+- **⚡ Auto-Initialization & Pre-Analysis:**
+  - Auto-populates and analyzes prompt sanitizer payloads on initial page load (zero blank states).
+
+- **📐 Responsive Auto-Fit Layout (1300px Breakpoint):**
+  - Grid layouts (`.benchmark-layout`, `.playground-layout`, `.policy-layout`, `.rag-layout`, `.redteam-layout`, `.grid-2-1`) dynamically stack right-side cards under 1300px width for zero horizontal clipping on laptops and zoomed viewports.
+
+- **🔍 Interactive Security Audit Details Modal:**
+  - Click ANY status badge (`Masked 🔍`, `Blocked 🔍`, `Sanitized 🔍`, `Cleared 🔍`) to open a glassmorphic audit trace modal displaying timestamp, user session, compliance rules, risk scores, and raw log traces.
+
+---
+
+## 🌟 Core Modules
 
 ### 1. Universal 20-Entity Privacy Detection & Partial Masking
 Unlike basic regex filtering systems, SecureLLM Shield uses a unified hybrid detection engine that scans prompts for **20 sensitive entity types** and applies intelligent **partial masking** instead of full redaction, preserving contextual utility while eliminating data leakage:
@@ -95,7 +119,7 @@ An embedded AI assistant drawer providing instant guidance on HIPAA, GDPR, DPDP 
    - Click **File ➔ Open Folder...** (`Ctrl + K, Ctrl + O`) and select the `Secure LLM Shield` directory.
 
 2. **Open Integrated Terminal:**
-   - Press **`Ctrl + ~`** (or go to top menu **Terminal ➔ New Terminal**).
+   - Press **`Ctrl + ~`** (or top menu **Terminal ➔ New Terminal**).
 
 3. **Start Python Application Server:**
    ```powershell
@@ -108,18 +132,12 @@ An embedded AI assistant drawer providing instant guidance on HIPAA, GDPR, DPDP 
 
 ---
 
-### 🔍 Interactive Status Inspection & Audit Dialog
-- **Single-Line Risk Classification:** All risk labels (`CRITICAL (98%)`, `HIGH (85%)`, `MODERATE (55%)`, `SAFE (0%)`) are formatted on a straight single line with zero text wrapping.
-- **Clickable Status Badges & Cards:** Click ANY status badge (`Masked 🔍`, `Blocked 🔍`, `Sanitized 🔍`, `Cleared 🔍`) in the **UBA Table** or ANY card under **Auto Incident Response Status** to open an interactive glassmorphic **Security Audit Details** modal displaying timestamp, user session, compliance rules, and raw log trace.
-
----
-
 ## 🎯 Verified Multi-Entity Test Case
 
 Input Prompt:
 ```text
 My name is SONUZ.
-My Aadhaar number is 1234 5678 9012.
+My Aadhaar number is 4567 8912 3456.
 My PAN is ABCDE1234F.
 My bank account number is 12345678901.
 Email is sonuz@gmail.com
@@ -131,7 +149,7 @@ IFSC is SBIN0001234
 Sanitized Output:
 ```text
 My name is SONUZ.
-My Aadhaar number is XXXX XXXX 9012.
+My Aadhaar number is XXXX XXXX 3456.
 My PAN is XXXXX1234F.
 My bank account number is XXXXXXX8901.
 Email is s****@gmail.com
@@ -143,6 +161,14 @@ IFSC is SBINXXXX234
 Risk Assessment Result:
 - **Overall Risk Index:** `98% (CRITICAL)`
 - **XAI Threat Status:** `YES (7 PII Spans Sanitized)`
+
+---
+
+## 📊 PowerPoint Presentation File
+
+- **File Path:** [`SecureLLM_Shield_Presentation.pptx`](file:///c:/Users/mukes/OneDrive/Desktop/SUBASH_PROJECT/Secure%20LLM%20Shield/SecureLLM_Shield_Presentation.pptx)
+- **Slide Count:** 18 Slides with Speaker Notes
+- **Team Presenters:** BARATHKUMAR M & SUBASH P
 
 ---
 
