@@ -1240,6 +1240,16 @@
                 runHomomorphicSimulation();
                 simulateRAG();
                 updateComplianceScore();
+
+                var promptInput = document.getElementById("promptInput");
+                var samplePrompts = document.getElementById("samplePrompts");
+                if (promptInput && samplePrompts && !promptInput.value.trim()) {
+                    samplePrompts.value = "sonuz";
+                    promptInput.value = presetPrompts.sonuz;
+                    if (typeof analyzePrompt === 'function') {
+                        analyzePrompt();
+                    }
+                }
             } catch(e) {}
         });
     </script>
