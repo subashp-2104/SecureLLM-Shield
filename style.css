@@ -610,10 +610,10 @@ body {
 }
 
 .grid-2-1 {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1300px) {
     .grid-2-1 {
         grid-template-columns: 1fr;
     }
@@ -800,12 +800,15 @@ tr:hover td {
 /* Playground UI styling */
 .playground-layout {
     display: grid;
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
     gap: 25px;
     margin-bottom: 25px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1300px) {
     .playground-layout {
         grid-template-columns: 1fr;
     }
@@ -1274,11 +1277,14 @@ mark.masked-diff {
 /* Policy view settings grid styles */
 .policy-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
     gap: 25px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1300px) {
     .policy-layout {
         grid-template-columns: 1fr;
     }
@@ -1535,11 +1541,14 @@ mark.masked-diff {
 /* Secure RAG & Privacy layers layout */
 .rag-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
     gap: 25px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1300px) {
     .rag-layout {
         grid-template-columns: 1fr;
     }
@@ -1758,11 +1767,14 @@ mark.masked-diff {
 /* Red Team views styling */
 .redteam-layout {
     display: grid;
-    grid-template-columns: 2fr 3fr;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
     gap: 25px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1300px) {
     .redteam-layout {
         grid-template-columns: 1fr;
     }
@@ -1899,11 +1911,14 @@ mark.masked-diff {
 /* Benchmarking layout styling */
 .benchmark-layout {
     display: grid;
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
     gap: 25px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1300px) {
     .benchmark-layout {
         grid-template-columns: 1fr;
     }
