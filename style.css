@@ -869,30 +869,47 @@ tr:hover td {
     background: rgba(0, 0, 0, 0.25);
     border: 1px solid var(--border-glass);
     border-radius: 12px;
-    padding: 18px;
+    padding: 20px;
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .entity-matrix-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
 }
 
 .entity-matrix-header h4 {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--text-main);
     display: flex;
     align-items: center;
     gap: 8px;
     margin: 0;
+    line-height: 1.3;
+}
+
+.matrix-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0 0 4px 0;
+    line-height: 1.4;
+    display: block;
 }
 
 .quick-preset-bar {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
+    margin-top: 4px;
+    margin-bottom: 6px;
 }
 
 .btn-sm {
@@ -904,23 +921,35 @@ tr:hover td {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-top: 4px;
+    margin-bottom: 8px;
 }
 
 .entity-tag {
     background: rgba(0, 242, 254, 0.08);
-    border: 1px solid rgba(0, 242, 254, 0.2);
+    border: 1px solid rgba(0, 242, 254, 0.25);
     color: var(--text-main);
-    font-size: 0.75rem;
-    padding: 4px 10px;
-    border-radius: 15px;
+    font-size: 0.78rem;
+    padding: 6px 12px;
+    border-radius: 20px;
     font-family: var(--font-code);
     transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.2;
 }
 
 .entity-tag:hover {
     background: rgba(0, 242, 254, 0.2);
     border-color: var(--primary-glow);
     transform: translateY(-1px);
+}
+
+.tag-flag {
+    font-family: initial;
+    display: inline-block;
 }
 
 .mini-image-banner {
