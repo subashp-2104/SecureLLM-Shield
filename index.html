@@ -1519,6 +1519,43 @@
                                 <button class="btn btn-secondary" onclick="clearPlayground()">Clear</button>
                                 <button class="btn btn-primary" onclick="analyzePrompt()">Analyze Prompt <i data-lucide="play" class="icon-inline"></i></button>
                             </div>
+
+                            <!-- Live Entity Masking Matrix & Quick Presets -->
+                            <div class="sandbox-entity-matrix">
+                                <div class="entity-matrix-header">
+                                    <h4><i data-lucide="shield-check" class="text-cyan"></i> Universal 20-Entity Detection Matrix</h4>
+                                    <span class="badge badge-safe">Active Gateway Filter</span>
+                                </div>
+                                <p class="section-desc mt-small">Real-time multi-pattern PII & secret detectors active for your current policy profile.</p>
+
+                                <!-- Quick Preset Test Buttons -->
+                                <div class="quick-preset-bar mt-small">
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('samplePrompts').value='sonuz'; loadPresetPrompt();"><i data-lucide="user-check" class="icon-inline"></i> Multi-Entity Test</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('samplePrompts').value='injection'; loadPresetPrompt();"><i data-lucide="shield-alert" class="icon-inline text-red"></i> DAN Jailbreak Attack</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('samplePrompts').value='secret'; loadPresetPrompt();"><i data-lucide="key" class="icon-inline text-yellow"></i> API Secret Leakage</button>
+                                </div>
+
+                                <!-- Active Entity Badges -->
+                                <div class="active-entity-tags mt-medium">
+                                    <span class="entity-tag" title="12-digit Aadhaar cards starting 0-9">🇮🇳 Aadhaar (XXXX XXXX 9012)</span>
+                                    <span class="entity-tag" title="10-char PAN ID">🇮🇳 PAN (XXXXX1234F)</span>
+                                    <span class="entity-tag" title="12-digit masking">💳 Credit Card (XXXX...4444)</span>
+                                    <span class="entity-tag" title="Bank account masking">🏦 Bank Acc (XXXXXXX8901)</span>
+                                    <span class="entity-tag" title="Bank IFSC code">🏛️ IFSC (SBINXXXX234)</span>
+                                    <span class="entity-tag" title="UPI Payment ID">📱 UPI ID (s****@oksbi)</span>
+                                    <span class="entity-tag" title="API Keys & Tokens">🔑 API Keys ([API_KEY_REDACTED])</span>
+                                    <span class="entity-tag" title="HIPAA PHI Records">🏥 Medical (MRN-XXXX54)</span>
+                                </div>
+
+                                <!-- Banner Image & Stats -->
+                                <div class="sandbox-footer-banner mt-medium">
+                                    <img src="assets/security_shield.jpg" alt="Security Shield Banner" class="mini-image-banner">
+                                    <div class="sandbox-stat-chips">
+                                        <span class="stat-chip"><i data-lucide="zap" class="text-yellow"></i> Processing Latency: <strong>&lt; 45ms</strong></span>
+                                        <span class="stat-chip"><i data-lucide="check-circle" class="text-green"></i> Detection Accuracy: <strong>99.8%</strong></span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Right: Risk & Pipeline Analysis -->
