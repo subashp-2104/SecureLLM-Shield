@@ -8,12 +8,6 @@ SecureLLM Shield is an enterprise-grade AI security gateway, privacy engineering
 
 ## 🌟 Key Project Highlights & Updates
 
-- **📊 College Project Review Presentation File (`.pptx`):**
-  - Includes `SecureLLM_Shield_Presentation.pptx` containing **18 professional slides** formatted for academic project reviews.
-  - Team Details: **BARATHKUMAR M** (Reg No: `111923AM01007`) & **SUBASH P** (Reg No: `111923AM02052`), Dept of AI & ML.
-  - Formatted in 16:9 Widescreen with Dark Blue (`#0B132B`), Electric Cyan (`#00F2FE`), and Neon Teal (`#48CAE4`) cybersecurity theme.
-  - Embedded high-resolution graphics (`assets/security_shield.jpg` and `assets/threat_nodes.jpg`) and speaker notes for every slide.
-
 - **🛡️ Universal 20-Entity Detection Matrix & Quick Test Presets:**
   - Interactive matrix panel positioned under Prompt Sandbox with zero blank space.
   - Quick test buttons: **`Multi-Entity Test`**, **`DAN Jailbreak Attack`**, and **`API Secret Leakage`**.
@@ -161,14 +155,6 @@ IFSC is SBINXXXX234
 Risk Assessment Result:
 - **Overall Risk Index:** `98% (CRITICAL)`
 - **XAI Threat Status:** `YES (7 PII Spans Sanitized)`
-
----
-
-## 📊 PowerPoint Presentation File
-
-- **File Path:** [`SecureLLM_Shield_Presentation.pptx`](file:///c:/Users/mukes/OneDrive/Desktop/SUBASH_PROJECT/Secure%20LLM%20Shield/SecureLLM_Shield_Presentation.pptx)
-- **Slide Count:** 18 Slides with Speaker Notes
-- **Team Presenters:** BARATHKUMAR M & SUBASH P
 
 ---
 
