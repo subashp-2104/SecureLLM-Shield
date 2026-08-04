@@ -1230,6 +1230,21 @@
         }
         window.closeStatusAuditModal = closeStatusAuditModal;
 
+        function openInfographicModal() {
+            var modal = document.getElementById("infographicModal");
+            if (modal) {
+                modal.classList.add("active");
+                if (window.lucide) { try { window.lucide.createIcons(); } catch(e) {} }
+            }
+        }
+        window.openInfographicModal = openInfographicModal;
+
+        function closeInfographicModal() {
+            var modal = document.getElementById("infographicModal");
+            if (modal) modal.classList.remove("active");
+        }
+        window.closeInfographicModal = closeInfographicModal;
+
         document.addEventListener("DOMContentLoaded", function() {
             try {
                 var savedTheme = localStorage.getItem("securellm_theme");
@@ -1342,6 +1357,10 @@
                         <span class="pulse-dot active-policy-pulse green" id="policyPulse"></span>
                         <span class="status-text" id="activePolicyText">Policy: Enterprise</span>
                     </div>
+                    <button class="copilot-toggle-btn" onclick="openInfographicModal()" style="background: rgba(0, 242, 254, 0.1); border-color: var(--primary);">
+                        <i data-lucide="map" class="text-cyan"></i>
+                        <span>Interactive Infographic</span>
+                    </button>
                     <button class="copilot-toggle-btn" onclick="toggleCopilot()">
                         <i data-lucide="bot"></i>
                         <span>Security Copilot</span>
@@ -2281,6 +2300,47 @@
             </div>
             <div class="modal-body" id="statusModalBody">
                 <!-- Dynamic audit details populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Infographic & Workflow Inspector Modal -->
+    <div class="modal-overlay" id="infographicModal" onclick="if(event.target === this) closeInfographicModal()">
+        <div class="modal-card" style="max-width: 1100px; width: 95%;">
+            <div class="modal-header">
+                <h3><i data-lucide="map" class="text-cyan"></i> SecureLLM Shield – Project Overview & System Workflow</h3>
+                <button class="modal-close-btn" onclick="closeInfographicModal()"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+                <!-- High-Res Infographic Image Preview -->
+                <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-glass); margin-bottom: 20px;">
+                    <img src="assets/infographic.png" alt="Secure LLM Shield Infographic" style="width: 100%; display: block; border-radius: 10px;">
+                </div>
+
+                <div class="audit-log-box" style="margin-top: 15px;">
+                    <h4><i data-lucide="mouse-pointer" class="text-blue"></i> Click-to-Inspect Interactive Workflow Nodes</h4>
+                    <p class="section-desc">Click any stage in the workflow below to inspect live execution logs and security contracts:</p>
+
+                    <div class="active-entity-tags" style="margin-top: 12px; gap: 8px;">
+                        <button class="btn btn-secondary btn-sm" onclick="openStatusAuditModal('Cleared', '1. User Input Ingestion', {time:'Real-time', user:'End User / Client App', layer:'Gateway Ingestion Proxy', compliance:'DPDP Act / GDPR Consent Gate', risk:'Safe (0%)', log:'[INPUT] User prompt payload received at SecureLLM Shield Gateway.\nRaw prompt isolated in sandbox environment for pre-routing inspection.'})">👤 1. User Input</button>
+
+                        <button class="btn btn-secondary btn-sm" onclick="openStatusAuditModal('Sanitized', '2. Dual Data Scanner (Regex + NER)', {time:'Real-time', user:'Shield Scanner Engine', layer:'Hybrid 20-Entity Scanner', compliance:'PCI-DSS & Government Identity Protection', risk:'Moderate (45%)', log:'[SCANNER] Scanned payload against 20 PII patterns.\n- Aadhaar card pattern match (12 digits)\n- PAN card pattern match (10 chars)\n- Bank account & UPI pattern match.'})">🔍 2. PII Scanner</button>
+
+                        <button class="btn btn-secondary btn-sm" onclick="openStatusAuditModal('Blocked', '3. Adversarial Prompt Injection Guard', {time:'Real-time', user:'Adversarial Classifier', layer:'DeBERTa Transformer Classifier', compliance:'EU AI Act Safety Guardrail', risk:'Critical (98%)', log:'[VALIDATOR] Evaluated prompt for jailbreak patterns.\n- DAN (Do-Anything-Now) intent detected (Confidence: 99.4%)\n- System instruction override blocked.'})">🛡️ 3. Jailbreak Guard</button>
+
+                        <button class="btn btn-secondary btn-sm" onclick="openStatusAuditModal('Sanitized', '4. Privacy & Masking Engine', {time:'Real-time', user:'Privacy Engine', layer:'Context-Preserving Anonymizer', compliance:'HIPAA PHI & DPDP Anonymization', risk:'Safe (0%)', log:'[MASKING] Applied partial masking to 7 sensitive entities.\n- Aadhaar: XXXX XXXX 3456\n- PAN: XXXXX1234F\n- Bank Acc: XXXXXXX8901\nContext preserved for model processing.'})">🔐 4. Privacy Engine</button>
+
+                        <button class="btn btn-secondary btn-sm" onclick="openStatusAuditModal('Cleared', '5. LLM Foundation Gateway', {time:'Real-time', user:'LLM Provider Endpoint', layer:'Multi-Model Routing Adapter', compliance:'Enterprise Access Control', risk:'Safe (0%)', log:'[LLM ROUTE] Clean, sanitized prompt payload dispatched to foundation model (GPT-4o / Claude 3.5 Sonnet / Llama 3.1 70B).\nZero raw user identity transmitted to cloud servers.'})">🤖 5. LLM Gateway</button>
+
+                        <button class="btn btn-secondary btn-sm" onclick="openStatusAuditModal('Cleared', '6. Response Safety Verification', {time:'Real-time', user:'Output Checker', layer:'Post-Processing Verification', compliance:'Data Leakage Prevention (DLP)', risk:'Safe (0%)', log:'[VERIFY] Model response output scanned prior to returning to client.\n- 0 secret keys in generated text\n- Response verified secure for end-user delivery.'})">✅ 6. Output Verifier</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 12px; border-top: 1px solid var(--border-glass);">
+                <a href="SecureLLM_Shield_Infographic.png" download="SecureLLM_Shield_Infographic.png" class="btn btn-primary btn-sm">
+                    <i data-lucide="download" class="icon-inline"></i> Download 1920x1080 Infographic PNG
+                </a>
+                <button class="btn btn-secondary" onclick="closeInfographicModal()">Close</button>
             </div>
         </div>
     </div>
