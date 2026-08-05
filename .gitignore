@@ -1,6 +1,7 @@
 # Ignore PowerPoint presentation files on GitHub
 *.pptx
 SecureLLM_Shield_Presentation.pptx
+SecureLLM_Shield_Presentation_Updated.pptx
 
 # Python cache & temporary files
 __pycache__/
