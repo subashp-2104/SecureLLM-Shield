@@ -2461,7 +2461,10 @@
     <!-- Application Initialization Script -->
     <script src="app.js"></script>
     <script>
-    // Fail-safe global bindings for Prompt Sandbox sub-tabs
+    // Fail-safe global bindings for Prompt Sandbox sub-tabs & file upload pipeline
+    var currentSelectedFile = currentSelectedFile || null;
+    var currentMultimodalReport = currentMultimodalReport || null;
+
     window.switchSandboxSubTab = window.switchSandboxSubTab || function(mode) {
         var textWrapper = document.getElementById("textSandboxInputWrapper");
         var multiWrapper = document.getElementById("multimodalSandboxInputWrapper");
@@ -2497,6 +2500,92 @@
         }
         if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
     };
+
+    window.handleFileSelected = window.handleFileSelected || function(file) {
+        if (!file) return;
+        currentSelectedFile = file;
+        var infoCard = document.getElementById("selectedFileInfoCard");
+        var nameEl = document.getElementById("selectedFileNameDisplay");
+        var typeEl = document.getElementById("selectedFileTypeDisplay");
+        var sizeEl = document.getElementById("selectedFileSizeDisplay");
+        if (infoCard) infoCard.style.display = "block";
+        if (nameEl) nameEl.innerText = file.name;
+        if (typeEl) typeEl.innerText = file.type || (file.name.split('.').pop().toUpperCase() + " File");
+        if (sizeEl) sizeEl.innerText = file.size < 1024*1024 ? (file.size/1024).toFixed(1) + " KB" : (file.size/(1024*1024)).toFixed(1) + " MB";
+        if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
+    };
+    window.handleFileUpload = window.handleFileSelected;
+
+    window.loadTestSample = window.loadTestSample || async function(sampleUrl, filename) {
+        try {
+            var res = await fetch(sampleUrl);
+            if (res.ok) {
+                var blob = await res.blob();
+                var file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
+                window.handleFileSelected(file);
+                window.runAnalysisForSelectedFile();
+                return;
+            }
+        } catch(e) {}
+        if (window.runFallbackMultimodalScan) window.runFallbackMultimodalScan(filename);
+    };
+    window.loadSampleFile = window.loadTestSample;
+
+    window.runAnalysisForSelectedFile = window.runAnalysisForSelectedFile || async function() {
+        if (!currentSelectedFile) {
+            window.loadTestSample('/test-samples/pii_document.pdf', 'pii_document.pdf');
+            return;
+        }
+        var file = currentSelectedFile;
+        var stepper = document.getElementById("multimodalProgressStepper");
+        var stepText = document.getElementById("multimodalProgressStepText");
+        var percentText = document.getElementById("multimodalProgressPercentText");
+        var progressBar = document.getElementById("multimodalProgressBar");
+        var reportContainer = document.getElementById("multimodalReportContainer");
+
+        if (stepper) stepper.style.display = "block";
+        if (reportContainer) reportContainer.style.display = "none";
+
+        if (stepText) stepText.innerText = "1. Uploading & Validating File MIME Type...";
+        if (percentText) percentText.innerText = "15%";
+        if (progressBar) progressBar.style.width = "15%";
+
+        var formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            var uploadRes = await fetch("/api/files/upload", { method: "POST", body: formData });
+            if (!uploadRes.ok) {
+                if (window.runFallbackMultimodalScan) window.runFallbackMultimodalScan(file.name);
+                return;
+            }
+            var uploadData = await uploadRes.json();
+            var fileId = uploadData.file_id;
+
+            if (stepText) stepText.innerText = "2. Extracting Content (OCR/PDF/DOCX/Video)...";
+            if (percentText) percentText.innerText = "40%";
+            if (progressBar) progressBar.style.width = "40%";
+            await new Promise(function(r){ setTimeout(r, 300); });
+
+            if (stepText) stepText.innerText = "3. Scanning 20 PII Entities & Prompt Injections...";
+            if (percentText) percentText.innerText = "70%";
+            if (progressBar) progressBar.style.width = "70%";
+
+            var scanRes = await fetch("/api/files/" + fileId + "/scan", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            });
+            var scanData = await scanRes.json();
+            if (stepText) stepText.innerText = "7. Security Processing Complete!";
+            if (percentText) percentText.innerText = "100%";
+            if (progressBar) progressBar.style.width = "100%";
+
+            if (window.displayMultimodalResults) window.displayMultimodalResults(scanData.report);
+        } catch(err) {
+            if (window.runFallbackMultimodalScan) window.runFallbackMultimodalScan(file.name);
+        }
+    };
+    window.triggerFileUploadScan = window.runAnalysisForSelectedFile;
     </script>
 </body>
 </html>
