@@ -413,6 +413,38 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     } catch(e) { console.warn("Subtab click binding warning:", e); }
 
+    // 2c. Bind Drag and Drop events to Multimodal Drop Zone
+    try {
+        const dropZone = document.getElementById("multimodalDropZone");
+        if (dropZone) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.style.borderColor = 'var(--primary)';
+                    dropZone.style.background = 'rgba(0, 242, 254, 0.12)';
+                }, false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.style.borderColor = 'var(--primary-glow)';
+                    dropZone.style.background = 'rgba(0, 242, 254, 0.04)';
+                }, false);
+            });
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files && files[0]) {
+                    handleFileUpload(files[0]);
+                }
+            }, false);
+        }
+    } catch(e) { console.warn("Drag drop binding warning:", e); }
+
     // 3. Initial hash-based tab navigation
     try {
         const initialHash = window.location.hash.replace("#", "") || "overview";
