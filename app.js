@@ -913,6 +913,7 @@ window.loadPresetPrompt = function() {
     const textArea = document.getElementById("promptInput");
     if (selectVal && presetPrompts[selectVal]) {
         textArea.value = presetPrompts[selectVal];
+        analyzePrompt();
     } else {
         textArea.value = "";
     }
