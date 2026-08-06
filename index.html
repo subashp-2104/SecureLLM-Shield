@@ -2603,6 +2603,7 @@
         ["node-regex", "node-ner", "node-classifier", "node-llm", "node-aggregator", "node-decision"].forEach(function(id) {
             var el = document.getElementById(id);
             if (el) {
+                el.className = "pipeline-node";
                 var statusSpan = el.querySelector(".node-status");
                 if (statusSpan) {
                     statusSpan.innerText = "Idle";

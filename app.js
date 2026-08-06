@@ -537,19 +537,19 @@ function displayMultimodalResults(report) {
 
     // 3. Update Hybrid Privacy & Injection Detection Pipeline Visualizer Nodes
     const pipelineNodes = [
-        { id: "node-regex", label: "PASSED", cls: "status-cleared" },
-        { id: "node-ner", label: "PASSED", cls: "status-cleared" },
-        { id: "node-classifier", label: "PASSED", cls: "status-cleared" },
-        { id: "node-llm", label: "PASSED", cls: "status-cleared" },
-        { id: "node-aggregator", label: "PASSED", cls: "status-cleared" }
+        { id: "node-regex", label: "PASSED", cls: "active-pass" },
+        { id: "node-ner", label: "PASSED", cls: "active-pass" },
+        { id: "node-classifier", label: "PASSED", cls: "active-pass" },
+        { id: "node-llm", label: "PASSED", cls: "active-pass" },
+        { id: "node-aggregator", label: "PASSED", cls: "active-pass" }
     ];
     pipelineNodes.forEach(n => {
         const el = document.getElementById(n.id);
         if (el) {
+            el.className = "pipeline-node " + n.cls;
             const statusSpan = el.querySelector(".node-status");
             if (statusSpan) {
                 statusSpan.innerText = n.label;
-                statusSpan.className = "node-status " + n.cls;
             }
         }
     });
@@ -557,18 +557,18 @@ function displayMultimodalResults(report) {
     const finalNodeEl = document.getElementById("node-decision");
     if (finalNodeEl) {
         const statusSpan = finalNodeEl.querySelector(".node-status");
+        let label = "PASSED";
+        let cls = "active-pass";
+        if (report.risk_label === "CRITICAL" || report.risk_score >= 80) {
+            label = "BLOCKED";
+            cls = "active-fail";
+        } else if (report.detected_entities_count > 0 || report.risk_score > 0) {
+            label = "SANITIZED";
+            cls = "active-pass";
+        }
+        finalNodeEl.className = "pipeline-node " + cls;
         if (statusSpan) {
-            let label = "CLEARED";
-            let cls = "status-cleared";
-            if (report.risk_label === "CRITICAL" || report.risk_score >= 80) {
-                label = "BLOCKED";
-                cls = "status-blocked";
-            } else if (report.detected_entities_count > 0 || report.risk_score > 0) {
-                label = "SANITIZED";
-                cls = "status-sanitized";
-            }
             statusSpan.innerText = label;
-            statusSpan.className = "node-status " + cls;
         }
     }
 
