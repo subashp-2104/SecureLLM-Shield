@@ -955,41 +955,49 @@ window.clearPlayground = function() {
 
 // Main Sandbox Analyzer
 window.analyzePrompt = function() {
-    const promptText = document.getElementById("promptInput").value.trim();
+    let promptText = document.getElementById("promptInput").value.trim();
     if (!promptText) {
-        alert("Please enter a prompt to analyze.");
-        return;
+        // Fallback: auto load multi-entity test sample if empty
+        const sampleSel = document.getElementById("samplePrompts");
+        if (sampleSel) sampleSel.value = "sonuz";
+        promptText = presetPrompts["sonuz"];
+        document.getElementById("promptInput").value = promptText;
     }
 
     // Step 1: Animation cycle for Pipeline nodes
     const pipelineSequence = ["regex", "ner", "classifier", "llm", "aggregator", "decision"];
     let stepIndex = 0;
 
-    // Reset pipeline nodes
+    // Reset pipeline nodes safely
     document.querySelectorAll(".pipeline-node").forEach(node => {
         node.className = "pipeline-node";
-        node.querySelector(".node-status").textContent = "Processing...";
+        const st = node.querySelector(".node-status");
+        if (st) st.textContent = "Processing...";
     });
 
     function runPipelineAnimation() {
         if (stepIndex > 0) {
-            // Mark previous as passed or status checked
             const prevId = `node-${pipelineSequence[stepIndex - 1]}`;
             const prevNode = document.getElementById(prevId);
-            prevNode.className = "pipeline-node active-pass";
-            prevNode.querySelector(".node-status").textContent = "PASSED";
+            if (prevNode) {
+                prevNode.className = "pipeline-node active-pass";
+                const st = prevNode.querySelector(".node-status");
+                if (st) st.textContent = "PASSED";
+            }
         }
 
         if (stepIndex < pipelineSequence.length) {
             const currentId = `node-${pipelineSequence[stepIndex]}`;
             const currentNode = document.getElementById(currentId);
-            currentNode.className = "pipeline-node active-pass";
-            currentNode.querySelector(".node-status").textContent = "ACTIVE";
+            if (currentNode) {
+                currentNode.className = "pipeline-node active-pass";
+                const st = currentNode.querySelector(".node-status");
+                if (st) st.textContent = "ACTIVE";
+            }
             
             stepIndex++;
-            setTimeout(runPipelineAnimation, 300);
+            setTimeout(runPipelineAnimation, 150);
         } else {
-            // Pipeline calculation complete. Apply actual decision status.
             finishPipelineAnalysis(promptText);
         }
     }
