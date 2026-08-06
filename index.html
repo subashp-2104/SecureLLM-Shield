@@ -2586,6 +2586,44 @@
         }
     };
     window.triggerFileUploadScan = window.runAnalysisForSelectedFile;
+
+    window.clearMultimodalSandbox = window.clearMultimodalSandbox || function() {
+        currentSelectedFile = null;
+        currentMultimodalReport = null;
+        var fileInput = document.getElementById("fileUploadInput");
+        if (fileInput) fileInput.value = '';
+        var infoCard = document.getElementById("selectedFileInfoCard");
+        if (infoCard) infoCard.style.display = "none";
+        var stepper = document.getElementById("multimodalProgressStepper");
+        if (stepper) stepper.style.display = "none";
+        var reportContainer = document.getElementById("multimodalReportContainer");
+        if (reportContainer) reportContainer.style.display = "none";
+        if (window.updateRiskWidget) window.updateRiskWidget(0, "SAFE", [], false);
+
+        ["node-regex", "node-ner", "node-classifier", "node-llm", "node-aggregator", "node-decision"].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                var statusSpan = el.querySelector(".node-status");
+                if (statusSpan) {
+                    statusSpan.innerText = "Idle";
+                    statusSpan.className = "node-status";
+                }
+            }
+        });
+
+        var xaiEl = document.getElementById("xaiContent");
+        if (xaiEl) xaiEl.innerHTML = '<p class="section-desc" style="font-size: 0.85rem;">Run an analysis to generate an explainability report.</p>';
+
+        var sanitizedOutputEl = document.getElementById("sanitizedOutput");
+        var diffContainerEl = document.getElementById("diffContainer");
+        var outputBadgeEl = document.getElementById("outputBadge");
+        if (sanitizedOutputEl) sanitizedOutputEl.innerText = "Your cleaned/masked prompt will appear here after analysis...";
+        if (diffContainerEl) diffContainerEl.innerHTML = '<p class="section-desc">Diff preview ready.</p>';
+        if (outputBadgeEl) {
+            outputBadgeEl.innerText = "NO INPUT";
+            outputBadgeEl.className = "badge badge-neutral";
+        }
+    };
     </script>
 </body>
 </html>

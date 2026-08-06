@@ -350,6 +350,35 @@ window.clearMultimodalSandbox = function() {
     if (reportContainer) reportContainer.style.display = "none";
     
     updateRiskWidget(0, "SAFE", [], false);
+
+    // Reset Hybrid Privacy & Injection Detection Pipeline Nodes to Idle
+    ["node-regex", "node-ner", "node-classifier", "node-llm", "node-aggregator", "node-decision"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            const statusSpan = el.querySelector(".node-status");
+            if (statusSpan) {
+                statusSpan.innerText = "Idle";
+                statusSpan.className = "node-status";
+            }
+        }
+    });
+
+    // Reset XAI Decision Logs box
+    const xaiEl = document.getElementById("xaiContent");
+    if (xaiEl) {
+        xaiEl.innerHTML = `<p class="section-desc" style="font-size: 0.85rem;">Run an analysis to generate an explainability report.</p>`;
+    }
+
+    // Reset Prompt Sanitizer Output & Diff Viewer
+    const sanitizedOutputEl = document.getElementById("sanitizedOutput");
+    const diffContainerEl = document.getElementById("diffContainer");
+    const outputBadgeEl = document.getElementById("outputBadge");
+    if (sanitizedOutputEl) sanitizedOutputEl.innerText = "Your cleaned/masked prompt will appear here after analysis...";
+    if (diffContainerEl) diffContainerEl.innerHTML = `<p class="section-desc">Diff preview ready.</p>`;
+    if (outputBadgeEl) {
+        outputBadgeEl.innerText = "NO INPUT";
+        outputBadgeEl.className = "badge badge-neutral";
+    }
 };
 
 function runFallbackMultimodalScan(filename) {
@@ -504,6 +533,58 @@ function displayMultimodalResults(report) {
         
         xaiHtml += `</div>`;
         xaiEl.innerHTML = xaiHtml;
+    }
+
+    // 3. Update Hybrid Privacy & Injection Detection Pipeline Visualizer Nodes
+    const pipelineNodes = [
+        { id: "node-regex", label: "PASSED", cls: "status-cleared" },
+        { id: "node-ner", label: "PASSED", cls: "status-cleared" },
+        { id: "node-classifier", label: "PASSED", cls: "status-cleared" },
+        { id: "node-llm", label: "PASSED", cls: "status-cleared" },
+        { id: "node-aggregator", label: "PASSED", cls: "status-cleared" }
+    ];
+    pipelineNodes.forEach(n => {
+        const el = document.getElementById(n.id);
+        if (el) {
+            const statusSpan = el.querySelector(".node-status");
+            if (statusSpan) {
+                statusSpan.innerText = n.label;
+                statusSpan.className = "node-status " + n.cls;
+            }
+        }
+    });
+
+    const finalNodeEl = document.getElementById("node-decision");
+    if (finalNodeEl) {
+        const statusSpan = finalNodeEl.querySelector(".node-status");
+        if (statusSpan) {
+            let label = "CLEARED";
+            let cls = "status-cleared";
+            if (report.risk_label === "CRITICAL" || report.risk_score >= 80) {
+                label = "BLOCKED";
+                cls = "status-blocked";
+            } else if (report.detected_entities_count > 0 || report.risk_score > 0) {
+                label = "SANITIZED";
+                cls = "status-sanitized";
+            }
+            statusSpan.innerText = label;
+            statusSpan.className = "node-status " + cls;
+        }
+    }
+
+    // 4. Update Prompt Sanitizer & Diff Output Viewer
+    const sanitizedOutputEl = document.getElementById("sanitizedOutput");
+    const diffContainerEl = document.getElementById("diffContainer");
+    const outputBadgeEl = document.getElementById("outputBadge");
+    if (sanitizedOutputEl) {
+        sanitizedOutputEl.innerText = report.sanitized_text_preview || "Sanitized document payload ready.";
+    }
+    if (diffContainerEl) {
+        diffContainerEl.innerHTML = `<pre style="color: var(--primary-glow); font-family: monospace; white-space: pre-wrap; margin:0;">${report.sanitized_text_preview || 'No changes detected.'}</pre>`;
+    }
+    if (outputBadgeEl) {
+        outputBadgeEl.innerText = report.risk_label === "CRITICAL" ? "BLOCKED & QUARANTINED" : "SANITIZED OUTPUT";
+        outputBadgeEl.className = report.risk_label === "CRITICAL" ? "badge badge-danger" : "badge badge-safe";
     }
 
     if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
