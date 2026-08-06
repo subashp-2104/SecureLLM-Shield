@@ -300,32 +300,88 @@ window.loadSampleFile = async function(sampleType) {
 };
 
 function runFallbackMultimodalScan(filename) {
-    const dummyReport = {
-        file_id: "demo_file",
-        metadata: {
-            original_filename: filename,
-            category: filename.includes("png") ? "image" : (filename.includes("pdf") ? "pdf" : "docx"),
-            size_formatted: "1.2 MB"
-        },
-        risk_score: 85,
-        risk_label: "CRITICAL",
-        action_taken: "SANITIZED & REDACTED",
-        detected_entities_count: 3,
-        threats_count: 1,
-        detected_entities: [
-            { entity_type: "Aadhaar Number", original_value: "4567 8912 3456", masked_value: "XXXX XXXX 3456", confidence: 99.6, risk_level: "Critical", strategy: "Partial Masking (Last 4 Digits)" },
-            { entity_type: "PAN Number", original_value: "ABCDE1234F", masked_value: "XXXXX1234F", confidence: 99.8, risk_level: "High", strategy: "Partial Masking (First 5 Letters)" },
-            { entity_type: "UPI ID", original_value: "sonuz@oksbi", masked_value: "s****@oksbi", confidence: 97.6, risk_level: "Medium", strategy: "Domain-Preserving" }
-        ],
-        threats: [
-            { threat_category: "DAN Jailbreak Attempt", severity: "Critical", confidence: 98.9, explanation: "System directive override pattern detected in OCR canvas." }
-        ],
-        sanitized_text_preview: "Extracted Content:\nAadhaar Number: XXXX XXXX 3456\nPAN Number: XXXXX1234F\nUPI: s****@oksbi\n[BLOCKED THREAT: SYSTEM OVERRIDE INSTRUCTION REMOVED]",
-        sanitized_download_url: "#",
-        audit_block: { block_hash: "a8f9c3e21...89b", timestamp: "2026-08-06 14:35:00", risk_score: 85 }
-    };
-    currentMultimodalReport = dummyReport;
-    displayMultimodalResults(dummyReport);
+    let report = {};
+    const fname = (filename || "").toLowerCase();
+    
+    if (fname.includes("aadhaar") || fname.includes("png") || fname.includes("jpg")) {
+        report = {
+            file_id: "sample_aadhaar",
+            metadata: { original_filename: "sample_aadhaar.png", category: "image", size_formatted: "1.2 MB", sanitized_filename: "sanitized_sample_aadhaar.png" },
+            risk_score: 88,
+            risk_label: "CRITICAL",
+            action_taken: "SANITIZED & REDACTED",
+            detected_entities_count: 3,
+            threats_count: 0,
+            detected_entities: [
+                { entity_type: "Aadhaar Number", original_value: "4567 8912 3456", masked_value: "XXXX XXXX 3456", confidence: 99.6, risk_level: "Critical", strategy: "Partial Masking (Last 4 Digits)" },
+                { entity_type: "PAN Number", original_value: "ABCDE1234F", masked_value: "XXXXX1234F", confidence: 99.8, risk_level: "High", strategy: "Partial Masking (First 5 Letters)" },
+                { entity_type: "Mobile Number", original_value: "9876543210", masked_value: "XXXXXX3210", confidence: 96.8, risk_level: "Medium", strategy: "Partial Masking (Last 4 Digits)" }
+            ],
+            threats: [],
+            sanitized_text_preview: "[OCR Image Canvas Scan]\nExtracted Aadhaar: XXXX XXXX 3456\nExtracted PAN: XXXXX1234F\nExtracted Phone: XXXXXX3210\nVisual Black-Box Masking Overlay Applied on Canvas.",
+            sanitized_download_url: "#",
+            audit_block: { block_index: 104, block_hash: "a8f9c3e21b089c89", timestamp: "2026-08-06 15:00:00", file_sha256: "e3b0c44298fc1c149afbf4c8996fb924", risk_score: 88, risk_label: "CRITICAL", action_taken: "SANITIZED & REDACTED" }
+        };
+    } else if (fname.includes("pdf") || fname.includes("invoice")) {
+        report = {
+            file_id: "sample_pdf",
+            metadata: { original_filename: "confidential_invoice.pdf", category: "pdf", size_formatted: "2.4 MB", sanitized_filename: "sanitized_confidential_invoice.pdf" },
+            risk_score: 75,
+            risk_label: "HIGH",
+            action_taken: "SANITIZED & REDACTED",
+            detected_entities_count: 3,
+            threats_count: 0,
+            detected_entities: [
+                { entity_type: "Bank Account Number", original_value: "12345678901", masked_value: "XXXXXXX8901", confidence: 95.5, risk_level: "Critical", strategy: "Partial Masking (Last 4 Digits)" },
+                { entity_type: "IFSC Code", original_value: "SBIN0001234", masked_value: "SBINXXXX234", confidence: 98.9, risk_level: "Medium", strategy: "Branch Router Protection" },
+                { entity_type: "Email Address", original_value: "billing@company.com", masked_value: "b****@company.com", confidence: 99.1, risk_level: "Medium", strategy: "Domain-Preserving" }
+            ],
+            threats: [],
+            sanitized_text_preview: "[PDF Document Page 1]\nAccount Transfer: XXXXXXX8901\nRouting IFSC: SBINXXXX234\nContact: b****@company.com\nSanitized PDF Document Generated.",
+            sanitized_download_url: "#",
+            audit_block: { block_index: 105, block_hash: "7d2e4f6a8b0c1234", timestamp: "2026-08-06 15:00:00", file_sha256: "f4c8996fb92427ae41e4649b934ca495", risk_score: 75, risk_label: "HIGH", action_taken: "SANITIZED & REDACTED" }
+        };
+    } else if (fname.includes("docx") || fname.includes("secret")) {
+        report = {
+            file_id: "sample_docx",
+            metadata: { original_filename: "internal_credentials.docx", category: "docx", size_formatted: "850 KB", sanitized_filename: "sanitized_internal_credentials.docx" },
+            risk_score: 95,
+            risk_label: "CRITICAL",
+            action_taken: "SANITIZED & REDACTED",
+            detected_entities_count: 2,
+            threats_count: 0,
+            detected_entities: [
+                { entity_type: "API Key", original_value: "sk_test_mock_99218374", masked_value: "sk_****8374", confidence: 99.9, risk_level: "Critical", strategy: "Credential Leakage Guard" },
+                { entity_type: "JWT Token", original_value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", masked_value: "[MASKED_JWT]", confidence: 99.9, risk_level: "Critical", strategy: "Token Structural Redaction" }
+            ],
+            threats: [],
+            sanitized_text_preview: "[DOCX Paragraph & Table Analysis]\nAWS Endpoint Key: sk_****8374\nSession Bearer Token: [MASKED_JWT]\nParagraphs & Table Cells Sanitized.",
+            sanitized_download_url: "#",
+            audit_block: { block_index: 106, block_hash: "3a9f1c4e7b825610", timestamp: "2026-08-06 15:00:00", file_sha256: "b934ca495991b7852b855e3b0c44298f", risk_score: 95, risk_label: "CRITICAL", action_taken: "SANITIZED & REDACTED" }
+        };
+    } else {
+        report = {
+            file_id: "sample_video",
+            metadata: { original_filename: "adversarial_video_stream.mp4", category: "video", size_formatted: "14.2 MB", sanitized_filename: "sanitized_adversarial_video_stream.mp4" },
+            risk_score: 92,
+            risk_label: "CRITICAL",
+            action_taken: "BLOCKED & QUARANTINED",
+            detected_entities_count: 1,
+            threats_count: 1,
+            detected_entities: [
+                { entity_type: "API Key", original_value: "sk_live_prod_88291039", masked_value: "sk_****1039", confidence: 99.9, risk_level: "Critical", strategy: "Prefix & Suffix Masking" }
+            ],
+            threats: [
+                { threat_category: "DAN Jailbreak Attempt", severity: "Critical", confidence: 98.9, explanation: "System directive override pattern detected in OCR canvas.", timestamp: "00:00:05" }
+            ],
+            sanitized_text_preview: "[Video Frame OCR 00:00:05]\nExtracted Secret Key: sk_****1039\n[BLOCKED THREAT: SYSTEM OVERRIDE INSTRUCTION REMOVED]",
+            sanitized_download_url: "#",
+            audit_block: { block_index: 107, block_hash: "90123456789abcdef0", timestamp: "2026-08-06 15:00:00", file_sha256: "495991b7852b855e3b0c44298fc1c149", risk_score: 92, risk_label: "CRITICAL", action_taken: "BLOCKED & QUARANTINED" }
+        };
+    }
+
+    currentMultimodalReport = report;
+    displayMultimodalResults(report);
 }
 
 function displayMultimodalResults(report) {
