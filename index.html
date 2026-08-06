@@ -1572,7 +1572,7 @@
                                 
                                 <!-- Drag & Drop File Upload Zone -->
                                 <div class="multimodal-upload-zone" id="multimodalDropZone" style="border: 2px dashed var(--primary-glow); border-radius: 12px; padding: 30px 20px; text-align: center; background: rgba(0, 242, 254, 0.04); cursor: pointer; transition: all 0.3s ease; position: relative;">
-                                    <input type="file" id="fileUploadInput" onchange="if(this.files && this.files[0]) { handleFileSelected(this.files[0]); runAnalysisForSelectedFile(); this.value = ''; }" accept=".png,.jpg,.jpeg,.webp,.pdf,.docx,.mp4,.mov,.avi,.mkv" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5;">
+                                    <input type="file" id="fileUploadInput" onchange="if(this.files && this.files[0]) { handleFileSelected(this.files[0], true); }" accept=".png,.jpg,.jpeg,.webp,.pdf,.docx,.mp4,.mov,.avi,.mkv" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5;">
                                     <i data-lucide="upload-cloud" style="width: 48px; height: 48px; color: var(--primary-glow); margin-bottom: 12px; pointer-events: none;"></i>
                                     <h4 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 6px; pointer-events: none;">Drag & Drop Image, PDF, DOCX, or Video File Here</h4>
                                     <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 14px; pointer-events: none;">Supported Formats: <strong>PNG, JPG, WEBP, PDF, DOCX, MP4, MOV, AVI, MKV</strong> (Max 25MB)</p>

@@ -193,7 +193,7 @@ function validateFileObject(file) {
 }
 
 // 1. Unified File Selection Handler
-window.handleFileSelected = function(file) {
+window.handleFileSelected = function(file, autoRun = true) {
     if (!file) return;
     
     const valResult = validateFileObject(file);
@@ -215,13 +215,12 @@ window.handleFileSelected = function(file) {
     if (typeEl) typeEl.innerText = file.type || (file.name.split('.').pop().toUpperCase() + " File");
     if (sizeEl) sizeEl.innerText = file.size < 1024*1024 ? (file.size/1024).toFixed(1) + " KB" : (file.size/(1024*1024)).toFixed(1) + " MB";
     
-    // Reset Stepper & Report
-    const stepper = document.getElementById("multimodalProgressStepper");
-    if (stepper) stepper.style.display = "none";
-    const reportContainer = document.getElementById("multimodalReportContainer");
-    if (reportContainer) reportContainer.style.display = "none";
-    
     if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
+
+    // Auto-trigger security scan pipeline immediately upon selection
+    if (autoRun) {
+        window.runAnalysisForSelectedFile();
+    }
 };
 
 // Compatibility alias
