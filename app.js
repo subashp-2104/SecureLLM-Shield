@@ -332,6 +332,63 @@ window.runAnalysisForSelectedFile = async function() {
 
 window.triggerFileUploadScan = window.runAnalysisForSelectedFile;
 
+// Global Risk Widget Renderer
+window.updateRiskWidget = function(score, level, entities, hasThreat) {
+    const circle = document.getElementById("riskCircle");
+    const percentEl = document.getElementById("riskPercentage");
+    const levelLabelEl = document.getElementById("riskLevelLabel");
+    const badgeEl = document.getElementById("assessmentRiskBadge");
+    const factorsUl = document.getElementById("riskFactors");
+
+    const riskVal = score || 0;
+    const labelVal = level || (riskVal > 75 ? "CRITICAL" : (riskVal > 50 ? "HIGH" : (riskVal > 25 ? "MODERATE" : "SAFE")));
+
+    let color = "var(--success)";
+    let badgeClass = "badge badge-safe";
+
+    if (labelVal === "CRITICAL" || riskVal >= 80) {
+        color = "var(--danger)";
+        badgeClass = "badge badge-danger";
+    } else if (labelVal === "HIGH" || riskVal >= 60) {
+        color = "var(--warning)";
+        badgeClass = "badge badge-warning";
+    } else if (labelVal === "MODERATE" || riskVal >= 30) {
+        color = "var(--primary)";
+        badgeClass = "badge badge-primary";
+    }
+
+    if (circle) {
+        circle.style.setProperty("--risk-percent", riskVal);
+        circle.style.setProperty("--circle-color", color);
+    }
+    if (percentEl) percentEl.innerText = `${riskVal}%`;
+    if (levelLabelEl) levelLabelEl.innerText = labelVal;
+    if (badgeEl) {
+        badgeEl.innerText = `${labelVal} (${riskVal}%)`;
+        badgeEl.className = `badge risk-level-badge ${badgeClass}`;
+    }
+
+    if (factorsUl) {
+        if (!entities || (entities.length === 0 && !hasThreat && riskVal === 0)) {
+            factorsUl.innerHTML = `<li><i data-lucide="check" class="text-green"></i> System Ready (Payload Clean)</li>`;
+        } else {
+            let html = "";
+            if (hasThreat) {
+                html += `<li><i data-lucide="shield-alert" class="text-red"></i> Security Directive Override / Jailbreak Threat (+40% Risk)</li>`;
+            }
+            if (entities && entities.length > 0) {
+                entities.forEach(e => {
+                    const eType = e.entity_type || e.type || "PII";
+                    const eVal = e.masked_value || e.original_value || "Detected";
+                    html += `<li><i data-lucide="shield-alert" class="text-blue"></i> ${eType} matched (${eVal})</li>`;
+                });
+            }
+            factorsUl.innerHTML = html;
+        }
+    }
+    if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
+};
+
 window.clearMultimodalSandbox = function() {
     currentSelectedFile = null;
     currentMultimodalReport = null;
