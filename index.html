@@ -1523,30 +1523,116 @@
                         <img src="assets/threat_nodes.jpg" alt="Interactive Sandbox Graphic" class="hero-banner-img">
                     </div>
 
+                    <!-- Sandbox Mode Sub-Tab Navigation Bar -->
+                    <div class="sandbox-subtab-bar" style="display: flex; gap: 12px; margin-bottom: 20px;">
+                        <button type="button" class="btn btn-secondary active" id="sandboxSubTab1" onclick="switchSandboxSubTab('text')" style="flex: 1; padding: 12px; font-weight: 700; border-color: var(--primary);">
+                            <i data-lucide="terminal" class="icon-inline text-cyan"></i> Tab 1: Text Sandbox
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="sandboxSubTab2" onclick="switchSandboxSubTab('multimodal')" style="flex: 1; padding: 12px; font-weight: 700;">
+                            <i data-lucide="file-text" class="icon-inline text-cyan"></i> Tab 2: Multimodal File Sandbox <span class="badge badge-safe" style="margin-left: 6px; font-size: 0.65rem;">NEW</span>
+                        </button>
+                    </div>
+
                     <div class="playground-layout">
                         <!-- Left: Input Sandbox -->
                         <div class="sandbox-input-area bg-glass">
-                            <div class="input-header">
-                                <h3>Prompt Sandbox</h3>
-                                <div class="sample-prompts-wrapper">
-                                    <label for="samplePrompts">Preset Attack Cases:</label>
-                                    <select id="samplePrompts" onchange="loadPresetPrompt()">
-                                        <option value="">-- Choose Sample --</option>
-                                        <option value="normal">Safe Enterprise Query</option>
-                                        <option value="aadhaar">Aadhaar Leakage (Government Info)</option>
-                                        <option value="pan">PAN Card Leakage (Financial Identity)</option>
-                                        <option value="credit">Credit Card & Bank Account Leakage</option>
-                                        <option value="injection">Prompt Injection Attack (Goal Jailbreak)</option>
-                                        <option value="medical">Medical Patient History Leakage</option>
-                                        <option value="secret">Source Code & API Secret Key Leakage</option>
-                                        <option value="sonuz">Full Multi-Entity Test Case (SONUZ Test)</option>
-                                    </select>
+                            <!-- Tab 1: Text Sandbox Wrapper -->
+                            <div id="textSandboxInputWrapper">
+                                <div class="input-header">
+                                    <h3>Prompt Sandbox (Text Mode)</h3>
+                                    <div class="sample-prompts-wrapper">
+                                        <label for="samplePrompts">Preset Attack Cases:</label>
+                                        <select id="samplePrompts" onchange="loadPresetPrompt()">
+                                            <option value="">-- Choose Sample --</option>
+                                            <option value="normal">Safe Enterprise Query</option>
+                                            <option value="aadhaar">Aadhaar Leakage (Government Info)</option>
+                                            <option value="pan">PAN Card Leakage (Financial Identity)</option>
+                                            <option value="credit">Credit Card & Bank Account Leakage</option>
+                                            <option value="injection">Prompt Injection Attack (Goal Jailbreak)</option>
+                                            <option value="medical">Medical Patient History Leakage</option>
+                                            <option value="secret">Source Code & API Secret Key Leakage</option>
+                                            <option value="sonuz">Full Multi-Entity Test Case (SONUZ Test)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <textarea id="promptInput" placeholder="Enter your prompt here to test security filtering..."></textarea>
+                                <div class="input-actions">
+                                    <button class="btn btn-secondary" onclick="clearPlayground()">Clear</button>
+                                    <button class="btn btn-primary" onclick="analyzePrompt()">Analyze Prompt <i data-lucide="play" class="icon-inline"></i></button>
                                 </div>
                             </div>
-                            <textarea id="promptInput" placeholder="Enter your prompt here to test security filtering..."></textarea>
-                            <div class="input-actions">
-                                <button class="btn btn-secondary" onclick="clearPlayground()">Clear</button>
-                                <button class="btn btn-primary" onclick="analyzePrompt()">Analyze Prompt <i data-lucide="play" class="icon-inline"></i></button>
+
+                            <!-- Tab 2: Multimodal File Sandbox Wrapper -->
+                            <div id="multimodalSandboxInputWrapper" style="display: none;">
+                                <div class="input-header">
+                                    <h3>Multimodal File Gateway</h3>
+                                    <span class="badge badge-safe">Isolated Gateway Active</span>
+                                </div>
+                                
+                                <!-- Drag & Drop File Upload Zone -->
+                                <div class="multimodal-upload-zone" id="multimodalDropZone" onclick="document.getElementById('fileUploadInput').click()" style="border: 2px dashed var(--primary-glow); border-radius: 12px; padding: 30px 20px; text-align: center; background: rgba(0, 242, 254, 0.04); cursor: pointer; transition: all 0.3s ease;">
+                                    <input type="file" id="fileUploadInput" style="display: none;" onchange="handleFileUpload(this.files[0])" accept=".png,.jpg,.jpeg,.webp,.pdf,.docx,.mp4,.mov,.avi,.mkv">
+                                    <i data-lucide="upload-cloud" style="width: 48px; height: 48px; color: var(--primary-glow); margin-bottom: 12px;"></i>
+                                    <h4 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 6px;">Drag & Drop Image, PDF, DOCX, or Video File Here</h4>
+                                    <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 14px;">Supported Formats: <strong>PNG, JPG, WEBP, PDF, DOCX, MP4, MOV, AVI, MKV</strong> (Max 25MB)</p>
+                                    <button type="button" class="btn btn-primary btn-sm"><i data-lucide="folder-open" class="icon-inline"></i> Browse Computer Files</button>
+                                </div>
+
+                                <!-- Quick Sample Test Files -->
+                                <div class="quick-preset-bar" style="margin-top: 15px;">
+                                    <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center;">Quick Test Samples:</span>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadSampleFile('sample_aadhaar.png')">📷 Aadhaar Image</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadSampleFile('sample_invoice.pdf')">📄 Confidential PDF</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadSampleFile('sample_secret.docx')">📝 Secret DOCX</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadSampleFile('sample_jailbreak.mp4')">🎥 Video Threat</button>
+                                </div>
+
+                                <!-- Stepper Progress Tracker -->
+                                <div id="multimodalProgressStepper" style="display: none; margin-top: 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-glass); border-radius: 10px; padding: 14px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <span id="multimodalProgressStepText" style="font-size: 0.85rem; font-weight: 700; color: var(--primary-glow);">1. File Validation Complete</span>
+                                        <span id="multimodalProgressPercentText" style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">15%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden;">
+                                        <div id="multimodalProgressBar" style="width: 15%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-glow)); transition: width 0.4s ease;"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Visual Security Report Card -->
+                                <div id="multimodalReportContainer" style="display: none; margin-top: 20px;">
+                                    <div class="audit-log-box" style="margin-top: 0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px; margin-bottom: 12px;">
+                                            <h4 style="margin: 0;"><i data-lucide="shield-check" class="text-cyan"></i> Multimodal File Security Report</h4>
+                                            <span id="multimodalActionBadge" class="badge badge-safe">SANITIZED & REDACTED</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.85rem; background: rgba(0,242,254,0.05); padding: 10px; border-radius: 8px;">
+                                            <div><strong>File Name:</strong> <span id="reportFileName">sample_invoice.pdf</span></div>
+                                            <div><strong>Type:</strong> <span id="reportFileType">PDF DOCUMENT</span></div>
+                                            <div><strong>Size:</strong> <span id="reportFileSize">1.2 MB</span></div>
+                                        </div>
+
+                                        <!-- Detection Summary Pills -->
+                                        <div style="display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;">
+                                            <span class="badge badge-warning" style="font-size: 0.8rem;">PII Entities: <strong id="reportPiiCount">3</strong></span>
+                                            <span class="badge badge-danger" style="font-size: 0.8rem;">Threats / Injections: <strong id="reportThreatCount">1</strong></span>
+                                            <span class="badge badge-safe" style="font-size: 0.8rem;">Original Status: <strong>PROTECTED (ISOLATED)</strong></span>
+                                        </div>
+
+                                        <!-- Text Preview & Redacted Diff -->
+                                        <div style="margin-bottom: 14px;">
+                                            <strong style="font-size: 0.82rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Extracted Content & Masked Text Preview:</strong>
+                                            <div id="multimodalTextPreview" style="font-family: var(--font-code); font-size: 0.8rem; background: rgba(0, 0, 0, 0.4); padding: 12px; border-radius: 8px; border: 1px solid var(--border-glass); max-height: 140px; overflow-y: auto; color: var(--text-main);">
+                                                Extracted text preview...
+                                            </div>
+                                        </div>
+
+                                        <!-- Action Buttons -->
+                                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                            <a id="btnDownloadSanitized" href="#" download class="btn btn-primary btn-sm"><i data-lucide="download" class="icon-inline"></i> Download Sanitized File</a>
+                                            <button type="button" class="btn btn-secondary btn-sm" onclick="viewMultimodalAuditTrace()"><i data-lucide="shield" class="icon-inline text-cyan"></i> View SHA-256 Audit Log</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Live Entity Masking Matrix & Quick Presets -->
