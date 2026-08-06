@@ -171,6 +171,29 @@ window.switchSandboxSubTab = function(mode) {
 
 let currentMultimodalReport = null;
 
+window.clearMultimodalSandbox = function() {
+    const fileInput = document.getElementById("fileUploadInput");
+    if (fileInput) fileInput.value = '';
+    
+    const stepper = document.getElementById("multimodalProgressStepper");
+    if (stepper) stepper.style.display = "none";
+    
+    const reportContainer = document.getElementById("multimodalReportContainer");
+    if (reportContainer) reportContainer.style.display = "none";
+    
+    currentMultimodalReport = null;
+    updateRiskWidget(0, "SAFE", [], false);
+};
+
+window.triggerFileUploadScan = function() {
+    const fileInput = document.getElementById("fileUploadInput");
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        handleFileUpload(fileInput.files[0]);
+    } else {
+        loadSampleFile('sample_aadhaar.png');
+    }
+};
+
 // Handle File Upload and Multimodal Scan Pipeline
 window.handleFileUpload = async function(file) {
     if (!file) return;
