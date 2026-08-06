@@ -1,0 +1,16 @@
+{
+  "total_samples": 500,
+  "categories": [
+    "clean",
+    "pii",
+    "financial",
+    "credentials",
+    "mixed_risk",
+    "adversarial"
+  ],
+  "target_metrics": {
+    "precision": 1.0,
+    "recall": 0.95,
+    "f1_score": 0.97
+  }
+}

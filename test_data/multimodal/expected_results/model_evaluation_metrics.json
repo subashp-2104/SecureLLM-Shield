@@ -1,0 +1,19 @@
+{
+  "corpus_size": 500,
+  "pii_metrics": {
+    "true_positives": 850,
+    "false_positives": 0,
+    "false_negatives": 150,
+    "precision": 1.0,
+    "recall": 0.85,
+    "f1_score": 0.9189189189189189
+  },
+  "threat_metrics": {
+    "true_positives": 50,
+    "false_positives": 50,
+    "false_negatives": 0,
+    "precision": 0.5,
+    "recall": 1.0,
+    "f1_score": 0.6666666666666666
+  }
+}
