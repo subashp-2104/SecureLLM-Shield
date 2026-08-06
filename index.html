@@ -1578,19 +1578,39 @@
                                     <button type="button" class="btn btn-primary btn-sm" style="pointer-events: none;"><i data-lucide="folder-open" class="icon-inline"></i> Browse Computer Files</button>
                                 </div>
 
-                                <!-- Quick Sample Test Files -->
-                                <div class="quick-preset-bar" style="margin-top: 15px; position: relative; z-index: 10;">
+                                <!-- Selected File Info Badge -->
+                                <div id="selectedFileInfoCard" style="display: none; margin-top: 15px; background: rgba(0, 242, 254, 0.06); border: 1px solid var(--primary-glow); border-radius: 10px; padding: 14px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <i data-lucide="file-check" style="width: 28px; height: 28px; color: var(--primary-glow);"></i>
+                                            <div>
+                                                <div style="font-weight: 700; color: var(--text-main); font-size: 0.92rem;" id="selectedFileNameDisplay">pii_document.pdf</div>
+                                                <div style="font-size: 0.78rem; color: var(--text-muted); display: flex; gap: 10px; margin-top: 2px;">
+                                                    <span>Type: <strong id="selectedFileTypeDisplay">PDF Document</strong></span>
+                                                    <span>•</span>
+                                                    <span>Size: <strong id="selectedFileSizeDisplay">2.4 MB</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="badge badge-safe">Ready for Analysis</span>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Sample Test Files (6 Categories) -->
+                                <div class="quick-preset-bar" style="margin-top: 15px; position: relative; z-index: 10; flex-wrap: wrap; gap: 8px;">
                                     <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center;">Quick Test Samples:</span>
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadSampleFile('sample_aadhaar.png')">📷 Aadhaar Image</button>
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadSampleFile('sample_invoice.pdf')">📄 Confidential PDF</button>
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadSampleFile('sample_secret.docx')">📝 Secret DOCX</button>
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadSampleFile('sample_jailbreak.mp4')">🎥 Video Threat</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadTestSample('/test-samples/pii_image.png', 'pii_image.png')">📷 PII Image</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadTestSample('/test-samples/pii_document.pdf', 'pii_document.pdf')">📄 PII PDF</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadTestSample('/test-samples/pii_document.docx', 'pii_document.docx')">📝 PII DOCX</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadTestSample('/test-samples/pii_video.mp4', 'pii_video.mp4')">🎥 PII Video</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadTestSample('/test-samples/prompt_injection.pdf', 'prompt_injection.pdf')">🛡️ Prompt Injection</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadTestSample('/test-samples/safe_document.pdf', 'safe_document.pdf')">✅ Clean Sample</button>
                                 </div>
 
                                 <!-- Action Buttons for Tab 2 -->
                                 <div class="input-actions" style="margin-top: 15px; position: relative; z-index: 10;">
                                     <button type="button" class="btn btn-secondary" onclick="clearMultimodalSandbox()">Clear File Input</button>
-                                    <button type="button" class="btn btn-primary" onclick="triggerFileUploadScan()">Scan File Payload <i data-lucide="play" class="icon-inline"></i></button>
+                                    <button type="button" id="btnRunAnalysisMultimodal" class="btn btn-primary" onclick="runAnalysisForSelectedFile()">Run Analysis <i data-lucide="play" class="icon-inline"></i></button>
                                 </div>
 
                                 <!-- Stepper Progress Tracker -->

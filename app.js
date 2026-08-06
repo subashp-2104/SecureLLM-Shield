@@ -169,43 +169,106 @@ window.switchSandboxSubTab = function(mode) {
     if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
 };
 
+let currentSelectedFile = null;
 let currentMultimodalReport = null;
 
-window.clearMultimodalSandbox = function() {
-    const fileInput = document.getElementById("fileUploadInput");
-    if (fileInput) fileInput.value = '';
+// Validate file extension and size
+function validateFileObject(file) {
+    if (!file) return { valid: false, message: "No file selected." };
     
+    const allowedExts = ['png', 'jpg', 'jpeg', 'webp', 'pdf', 'docx', 'mp4', 'mov', 'avi', 'mkv'];
+    const name = file.name || "unknown";
+    const ext = name.includes(".") ? name.split(".").pop().toLowerCase() : "";
+    
+    if (!ext || !allowedExts.includes(ext)) {
+        return { valid: false, message: `Unsupported file format '.${ext}'. Supported formats: ${allowedExts.join(", ")}` };
+    }
+    
+    const maxSize = 25 * 1024 * 1024; // 25 MB
+    if (file.size > maxSize) {
+        return { valid: false, message: `File size (${(file.size / (1024*1024)).toFixed(1)} MB) exceeds maximum allowed size of 25 MB.` };
+    }
+    
+    return { valid: true, message: "File valid." };
+}
+
+// 1. Unified File Selection Handler
+window.handleFileSelected = function(file) {
+    if (!file) return;
+    
+    const valResult = validateFileObject(file);
+    if (!valResult.valid) {
+        alert(valResult.message);
+        return;
+    }
+    
+    currentSelectedFile = file;
+    
+    // Display Selected File Card
+    const infoCard = document.getElementById("selectedFileInfoCard");
+    const nameEl = document.getElementById("selectedFileNameDisplay");
+    const typeEl = document.getElementById("selectedFileTypeDisplay");
+    const sizeEl = document.getElementById("selectedFileSizeDisplay");
+    
+    if (infoCard) infoCard.style.display = "block";
+    if (nameEl) nameEl.innerText = file.name;
+    if (typeEl) typeEl.innerText = file.type || (file.name.split('.').pop().toUpperCase() + " File");
+    if (sizeEl) sizeEl.innerText = file.size < 1024*1024 ? (file.size/1024).toFixed(1) + " KB" : (file.size/(1024*1024)).toFixed(1) + " MB";
+    
+    // Reset Stepper & Report
     const stepper = document.getElementById("multimodalProgressStepper");
     if (stepper) stepper.style.display = "none";
-    
     const reportContainer = document.getElementById("multimodalReportContainer");
     if (reportContainer) reportContainer.style.display = "none";
     
-    currentMultimodalReport = null;
-    updateRiskWidget(0, "SAFE", [], false);
+    if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
 };
 
-window.triggerFileUploadScan = function() {
-    const fileInput = document.getElementById("fileUploadInput");
-    if (fileInput && fileInput.files && fileInput.files[0]) {
-        handleFileUpload(fileInput.files[0]);
-    } else {
-        loadSampleFile('sample_aadhaar.png');
+// Compatibility alias
+window.handleFileUpload = window.handleFileSelected;
+
+// 2. Load Quick Test Sample using real fetch() -> Blob -> File -> handleFileSelected
+window.loadTestSample = async function(sampleUrl, filename) {
+    try {
+        console.log("Loading Quick Test Sample via real fetch():", sampleUrl, filename);
+        const res = await fetch(sampleUrl);
+        if (!res.ok) {
+            throw new Error(`Failed to fetch test sample artifact from ${sampleUrl}`);
+        }
+        const blob = await res.blob();
+        const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
+        
+        window.handleFileSelected(file);
+        
+        // Auto trigger analysis for sample test case
+        window.runAnalysisForSelectedFile();
+    } catch (err) {
+        console.warn("Sample fetch fallback:", err);
+        runFallbackMultimodalScan(filename);
     }
 };
 
-// Handle File Upload and Multimodal Scan Pipeline
-window.handleFileUpload = async function(file) {
-    if (!file) return;
+window.loadSampleFile = window.loadTestSample;
 
+// 3. Run Analysis for Currently Selected File
+window.runAnalysisForSelectedFile = async function() {
+    if (!currentSelectedFile) {
+        // If no file selected yet, auto-trigger sample PII PDF
+        window.loadTestSample('/test-samples/pii_document.pdf', 'pii_document.pdf');
+        return;
+    }
+    
+    const file = currentSelectedFile;
     const stepper = document.getElementById("multimodalProgressStepper");
     const stepText = document.getElementById("multimodalProgressStepText");
     const percentText = document.getElementById("multimodalProgressPercentText");
     const progressBar = document.getElementById("multimodalProgressBar");
     const reportContainer = document.getElementById("multimodalReportContainer");
+    const runBtn = document.getElementById("btnRunAnalysisMultimodal");
 
     if (stepper) stepper.style.display = "block";
     if (reportContainer) reportContainer.style.display = "none";
+    if (runBtn) { runBtn.disabled = true; runBtn.innerText = "Analyzing Payload..."; }
 
     // Step 1: Uploading & Validation
     if (stepText) stepText.innerText = "1. Uploading & Validating File MIME Type...";
@@ -225,6 +288,7 @@ window.handleFileUpload = async function(file) {
             const errData = await uploadRes.json();
             alert("Upload Error: " + (errData.message || "File validation failed"));
             if (stepper) stepper.style.display = "none";
+            if (runBtn) { runBtn.disabled = false; runBtn.innerHTML = 'Run Analysis <i data-lucide="play" class="icon-inline"></i>'; }
             return;
         }
 
@@ -235,7 +299,7 @@ window.handleFileUpload = async function(file) {
         if (stepText) stepText.innerText = "2. Extracting Content (OCR/PDF/DOCX/Video)...";
         if (percentText) percentText.innerText = "40%";
         if (progressBar) progressBar.style.width = "40%";
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(r => setTimeout(r, 300));
 
         // Step 3: Security & Injection Scan
         if (stepText) stepText.innerText = "3. Scanning 20 PII Entities & Prompt Injections...";
@@ -256,47 +320,36 @@ window.handleFileUpload = async function(file) {
         if (percentText) percentText.innerText = "100%";
         if (progressBar) progressBar.style.width = "100%";
 
-        // Update UI with Security Results
         displayMultimodalResults(report);
 
     } catch (err) {
         console.error("Multimodal upload failed:", err);
         runFallbackMultimodalScan(file.name);
+    } finally {
+        if (runBtn) { runBtn.disabled = false; runBtn.innerHTML = 'Run Analysis <i data-lucide="play" class="icon-inline"></i>'; }
+        if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
     }
 };
 
-// Quick Sample Test File Loader
-window.loadSampleFile = async function(sampleType) {
+window.triggerFileUploadScan = window.runAnalysisForSelectedFile;
+
+window.clearMultimodalSandbox = function() {
+    currentSelectedFile = null;
+    currentMultimodalReport = null;
+    
+    const fileInput = document.getElementById("fileUploadInput");
+    if (fileInput) fileInput.value = '';
+    
+    const infoCard = document.getElementById("selectedFileInfoCard");
+    if (infoCard) infoCard.style.display = "none";
+    
     const stepper = document.getElementById("multimodalProgressStepper");
-    const stepText = document.getElementById("multimodalProgressStepText");
-    const percentText = document.getElementById("multimodalProgressPercentText");
-    const progressBar = document.getElementById("multimodalProgressBar");
-
-    if (stepper) stepper.style.display = "block";
-
-    if (stepText) stepText.innerText = "Scanning Sample File Payload...";
-    if (percentText) percentText.innerText = "60%";
-    if (progressBar) progressBar.style.width = "60%";
-
-    const sampleId = "sample_" + Date.now();
-    try {
-        const scanRes = await fetch(`/api/files/${sampleId}/scan`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sample_type: sampleType })
-        });
-        const scanData = await scanRes.json();
-        const report = scanData.report;
-        currentMultimodalReport = report;
-
-        if (stepText) stepText.innerText = "7. Security Processing Complete!";
-        if (percentText) percentText.innerText = "100%";
-        if (progressBar) progressBar.style.width = "100%";
-
-        displayMultimodalResults(report);
-    } catch (err) {
-        runFallbackMultimodalScan(sampleType);
-    }
+    if (stepper) stepper.style.display = "none";
+    
+    const reportContainer = document.getElementById("multimodalReportContainer");
+    if (reportContainer) reportContainer.style.display = "none";
+    
+    updateRiskWidget(0, "SAFE", [], false);
 };
 
 function runFallbackMultimodalScan(filename) {
@@ -416,8 +469,42 @@ function displayMultimodalResults(report) {
         downloadBtn.setAttribute("download", report.metadata.sanitized_filename || "sanitized_file");
     }
 
-    // Update Circular Risk Widget on Right Side
+    // 1. Update Circular Risk Widget on Right Side
     updateRiskWidget(report.risk_score, report.risk_label, report.detected_entities, report.threats_count > 0);
+
+    // 2. Update Explainable AI (XAI) Decision Logs
+    const xaiEl = document.getElementById("xaiContent");
+    if (xaiEl) {
+        let xaiHtml = `<div style="font-size: 0.85rem;">`;
+        xaiHtml += `<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 6px; margin-bottom: 8px;">`;
+        xaiHtml += `<span><strong>Policy Decision:</strong></span> <span class="badge ${report.risk_label === 'CRITICAL' ? 'badge-danger' : 'badge-safe'}">${report.action_taken}</span>`;
+        xaiHtml += `</div>`;
+        
+        xaiHtml += `<div style="margin-bottom: 8px;"><strong>Assessment Summary:</strong> <code>${report.metadata.original_filename}</code> evaluated against Universal 20-Entity Matrix & Multimodal Threat Classifier.</div>`;
+        
+        if (report.detected_entities && report.detected_entities.length > 0) {
+            xaiHtml += `<div style="margin-bottom: 6px;"><strong>Detected PII Entities (${report.detected_entities.length}):</strong></div>`;
+            xaiHtml += `<ul style="padding-left: 18px; margin: 0; font-size: 0.8rem; color: var(--text-main);">`;
+            report.detected_entities.forEach(e => {
+                xaiHtml += `<li style="margin-bottom: 4px;"><strong style="color: var(--primary-glow);">${e.entity_type}:</strong> Confidence ${e.confidence}% • Action: <span class="badge badge-safe" style="font-size:0.65rem;">${e.strategy || 'MASK'}</span></li>`;
+            });
+            xaiHtml += `</ul>`;
+        } else {
+            xaiHtml += `<div style="color: var(--accent-green); font-size: 0.8rem; margin-top: 4px;">✓ No sensitive PII entities detected in payload.</div>`;
+        }
+
+        if (report.threats && report.threats.length > 0) {
+            xaiHtml += `<div style="margin-top: 10px; padding: 8px; background: rgba(255,0,0,0.1); border: 1px solid var(--accent-red); border-radius: 6px;">`;
+            xaiHtml += `<strong style="color: var(--accent-red);">🛡️ Security Directives Blocked:</strong>`;
+            report.threats.forEach(t => {
+                xaiHtml += `<div style="font-size: 0.78rem; margin-top: 4px;">• ${t.threat_category} (${t.severity}) - ${t.explanation}</div>`;
+            });
+            xaiHtml += `</div>`;
+        }
+        
+        xaiHtml += `</div>`;
+        xaiEl.innerHTML = xaiHtml;
+    }
 
     if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
 }
