@@ -2433,5 +2433,43 @@
 
     <!-- Application Initialization Script -->
     <script src="app.js"></script>
+    <script>
+    // Fail-safe global bindings for Prompt Sandbox sub-tabs
+    window.switchSandboxSubTab = window.switchSandboxSubTab || function(mode) {
+        var textWrapper = document.getElementById("textSandboxInputWrapper");
+        var multiWrapper = document.getElementById("multimodalSandboxInputWrapper");
+        var btnTab1 = document.getElementById("sandboxSubTab1");
+        var btnTab2 = document.getElementById("sandboxSubTab2");
+
+        if (mode === 'multimodal') {
+            if (textWrapper) textWrapper.style.display = "none";
+            if (multiWrapper) multiWrapper.style.display = "block";
+            if (btnTab1) {
+                btnTab1.classList.remove("active");
+                btnTab1.style.borderColor = "rgba(255, 255, 255, 0.15)";
+                btnTab1.style.background = "rgba(255, 255, 255, 0.05)";
+            }
+            if (btnTab2) {
+                btnTab2.classList.add("active");
+                btnTab2.style.borderColor = "var(--primary-glow)";
+                btnTab2.style.background = "rgba(0, 242, 254, 0.15)";
+            }
+        } else {
+            if (textWrapper) textWrapper.style.display = "block";
+            if (multiWrapper) multiWrapper.style.display = "none";
+            if (btnTab1) {
+                btnTab1.classList.add("active");
+                btnTab1.style.borderColor = "var(--primary-glow)";
+                btnTab1.style.background = "rgba(0, 242, 254, 0.15)";
+            }
+            if (btnTab2) {
+                btnTab2.classList.remove("active");
+                btnTab2.style.borderColor = "rgba(255, 255, 255, 0.15)";
+                btnTab2.style.background = "rgba(255, 255, 255, 0.05)";
+            }
+        }
+        if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
+    };
+    </script>
 </body>
 </html>
