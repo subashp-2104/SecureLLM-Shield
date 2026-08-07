@@ -1170,27 +1170,32 @@ window.clearPlayground = function() {
     }
 };
 
-// Main Sandbox Analyzer
+// Main Sandbox Analyzer (Unified Text & Multimodal Gateway)
 window.analyzePrompt = function() {
+    // If a file is selected, run file security analysis
+    if (currentSelectedFile) {
+        window.runAnalysisForSelectedFile();
+        return;
+    }
+
     let promptText = document.getElementById("promptInput").value.trim();
     if (!promptText) {
-        // Fallback: auto load multi-entity test sample if empty
+        // Auto-load multi-entity test case if empty
         const sampleSel = document.getElementById("samplePrompts");
         if (sampleSel) sampleSel.value = "sonuz";
-        promptText = presetPrompts["sonuz"];
+        promptText = presetPrompts["sonuz"] || "User SONUZ details: Aadhaar 4521 8901 2345, PAN ABCDE1234F, Bank Account 987654321012, Mobile 9876543210.";
         document.getElementById("promptInput").value = promptText;
     }
 
-    // Step 1: Animation cycle for Pipeline nodes
-    const pipelineSequence = ["regex", "ner", "classifier", "llm", "aggregator", "decision"];
-    let stepIndex = 0;
-
-    // Reset pipeline nodes safely
+    // Reset pipeline nodes cleanly before animation
     document.querySelectorAll(".pipeline-node").forEach(node => {
         node.className = "pipeline-node";
         const st = node.querySelector(".node-status");
         if (st) st.textContent = "Processing...";
     });
+
+    const pipelineSequence = ["regex", "ner", "classifier", "llm", "aggregator", "decision"];
+    let stepIndex = 0;
 
     function runPipelineAnimation() {
         if (stepIndex > 0) {
@@ -1213,13 +1218,14 @@ window.analyzePrompt = function() {
             }
             
             stepIndex++;
-            setTimeout(runPipelineAnimation, 150);
+            setTimeout(runPipelineAnimation, 120);
         } else {
             finishPipelineAnalysis(promptText);
         }
     }
 
     runPipelineAnimation();
+};
 };
 
 // Universal 20-Entity Detection Engine
