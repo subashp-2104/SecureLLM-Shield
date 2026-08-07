@@ -17,6 +17,7 @@ ALLOWED_EXTENSIONS = {
     'image': {'png', 'jpg', 'jpeg', 'webp'},
     'pdf': {'pdf'},
     'docx': {'docx'},
+    'text': {'txt', 'csv', 'json', 'xlsx'},
     'video': {'mp4', 'mov', 'avi', 'mkv'}
 }
 
@@ -37,9 +38,10 @@ def validate_uploaded_file(file_obj, filename: str) -> Tuple[bool, str, Dict[str
     if not filename or '.' not in filename:
         return False, "Invalid filename: missing extension.", {}
     
+    all_allowed = set().union(*ALLOWED_EXTENSIONS.values())
     ext = filename.rsplit('.', 1)[1].lower()
-    if ext not in ALL_ALLOWED_EXTENSIONS:
-        return False, f"Unsupported file extension '.{ext}'. Supported: {', '.join(sorted(ALL_ALLOWED_EXTENSIONS))}", {}
+    if ext not in all_allowed:
+        return False, f"Unsupported file extension '.{ext}'. Supported: {', '.join(sorted(all_allowed))}", {}
     
     # Check file size
     file_obj.seek(0, os.SEEK_END)

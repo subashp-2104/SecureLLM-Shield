@@ -1,0 +1,6 @@
+User Credentials Record:
+Name: Barathkumar M
+Aadhaar: 9999 8888 7777
+PAN: ABCDE1234F
+Phone: +91 90000 12345
+API Key: sk_test_mock_8819203910

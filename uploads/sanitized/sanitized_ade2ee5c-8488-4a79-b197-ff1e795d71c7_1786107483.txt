@@ -1,0 +1,10 @@
+SECURELLM SHIELD - SANITIZED TEXT OUTPUT
+Original: ade2ee5c-8488-4a79-b197-ff1e795d71c7_1786107483.txt
+
+Sanitized Content:
+User Credentials Record:
+Name: Barathkumar M
+XXXX XXXX 7777
+PAN: XXXXX1234F
+Phone: +91 90000 12345
+API Key: sk_test_mock_8819203910

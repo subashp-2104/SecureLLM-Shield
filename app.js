@@ -176,7 +176,7 @@ let currentMultimodalReport = null;
 function validateFileObject(file) {
     if (!file) return { valid: false, message: "No file selected." };
     
-    const allowedExts = ['png', 'jpg', 'jpeg', 'webp', 'pdf', 'docx', 'mp4', 'mov', 'avi', 'mkv'];
+    const allowedExts = ['png', 'jpg', 'jpeg', 'webp', 'pdf', 'docx', 'txt', 'csv', 'json', 'xlsx', 'mp4', 'mov', 'avi', 'mkv'];
     const name = file.name || "unknown";
     const ext = name.includes(".") ? name.split(".").pop().toLowerCase() : "";
     

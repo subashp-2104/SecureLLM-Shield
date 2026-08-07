@@ -1,0 +1,12 @@
+SECURELLM SHIELD - SANITIZED TEXT OUTPUT
+Original: 602d0dfb-3318-4c80-972d-ecd05b05ed63_1786107496.json
+
+Sanitized Content:
+{
+  "user_id": 1001,
+  "user_name": "Synthetic User",
+  "aadhaar_number": "XXXX XXXX 7777",
+  "pan_card": "XXXXX1234F",
+  "email": "t****@example.com",
+  "api_key": "sk-test-EXAMPLE-ONLY"
+}

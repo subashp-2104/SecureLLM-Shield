@@ -220,6 +220,56 @@ class ContentExtractor:
             })
         return blocks
 
+    @staticmethod
+    def extract_from_text_file(file_path: str) -> List[Dict[str, Any]]:
+        """
+        Extract text content from plain text, CSV, JSON, and XLSX files.
+        """
+        blocks = []
+        try:
+            ext = file_path.rsplit('.', 1)[1].lower() if '.' in file_path else 'txt'
+            if ext == 'xlsx':
+                try:
+                    import zipfile
+                    import xml.etree.ElementTree as ET
+                    with zipfile.ZipFile(file_path, 'r') as z:
+                        shared_strings = []
+                        if 'xl/sharedStrings.xml' in z.namelist():
+                            tree = ET.fromstring(z.read('xl/sharedStrings.xml'))
+                            shared_strings = [node.text for node in tree.iter() if node.text]
+                        if shared_strings:
+                            blocks.append({
+                                "source_type": "xlsx",
+                                "page": 1,
+                                "timestamp": "Sheet 1",
+                                "content_type": "xlsx_text",
+                                "text": "\n".join(shared_strings),
+                                "location": {"x": 30, "y": 50, "width": 540, "height": 200}
+                            })
+                except Exception:
+                    pass
+            if not blocks:
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                    text_content = f.read()
+                blocks.append({
+                    "source_type": ext,
+                    "page": 1,
+                    "timestamp": "Document",
+                    "content_type": f"{ext}_text",
+                    "text": text_content.strip() if text_content.strip() else f"[{ext.upper()} File Content]",
+                    "location": {"x": 30, "y": 50, "width": 540, "height": 200}
+                })
+        except Exception as err:
+            blocks.append({
+                "source_type": "text",
+                "page": 1,
+                "timestamp": "Document",
+                "content_type": "text",
+                "text": f"[Text Extraction Error: {str(err)}]",
+                "location": {"x": 0, "y": 0, "width": 100, "height": 100}
+            })
+        return blocks
+
     @classmethod
     def extract(cls, file_path: str, category: str) -> List[Dict[str, Any]]:
         if category == "image":
@@ -230,6 +280,8 @@ class ContentExtractor:
             return cls.extract_from_docx(file_path)
         elif category == "video":
             return cls.extract_from_video(file_path)
+        elif category == "text":
+            return cls.extract_from_text_file(file_path)
         else:
             return [{
                 "source_type": "file",

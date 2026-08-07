@@ -1,0 +1,8 @@
+{
+  "user_id": 1001,
+  "user_name": "Synthetic User",
+  "aadhaar_number": "9999 8888 7777",
+  "pan_card": "ABCDE1234F",
+  "email": "test.user@example.com",
+  "api_key": "sk-test-EXAMPLE-ONLY"
+}
