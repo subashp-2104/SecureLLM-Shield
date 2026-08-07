@@ -207,12 +207,18 @@
         }
 
         function analyzePrompt() {
+            if (window.currentSelectedFile) {
+                window.runAnalysisForSelectedFile();
+                return;
+            }
             var promptInput = document.getElementById("promptInput");
             if (!promptInput) return;
             var promptText = promptInput.value.trim();
             if (!promptText) {
-                alert("Please enter a prompt to analyze.");
-                return;
+                var sampleSel = document.getElementById("samplePrompts");
+                if (sampleSel) sampleSel.value = "sonuz";
+                promptText = "User SONUZ details: Aadhaar 4521 8901 2345, PAN ABCDE1234F, Bank Account 987654321012, Mobile 9876543210.";
+                promptInput.value = promptText;
             }
 
             var pipelineSequence = ["regex", "ner", "classifier", "llm", "aggregator", "decision"];
