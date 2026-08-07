@@ -332,6 +332,48 @@ window.runAnalysisForSelectedFile = async function() {
 
 window.triggerFileUploadScan = window.runAnalysisForSelectedFile;
 
+// Global Pipeline Node Animation Helper
+window.animatePipelineNodes = function(report, onComplete) {
+    const pipelineSequence = [
+        { id: "node-regex", name: "1. Regex Engine", passLabel: "PASSED" },
+        { id: "node-ner", name: "2. Named Entity", passLabel: "PASSED" },
+        { id: "node-classifier", name: "3. Transformer Classifier", passLabel: "PASSED" },
+        { id: "node-llm", name: "4. LLM Verification", passLabel: "PASSED" },
+        { id: "node-aggregator", name: "5. Risk Aggregator", passLabel: "PASSED" },
+        { id: "node-decision", name: "6. Final Action", passLabel: (report.risk_label === "CRITICAL" || report.risk_score >= 80) ? "BLOCKED" : ((report.detected_entities_count > 0 || report.risk_score > 0) ? "SANITIZED" : "PASSED") }
+    ];
+
+    let idx = 0;
+    function step() {
+        if (idx > 0) {
+            const prev = pipelineSequence[idx - 1];
+            const prevEl = document.getElementById(prev.id);
+            if (prevEl) {
+                const isFail = (prev.id === "node-decision" && (report.risk_label === "CRITICAL" || report.risk_score >= 80));
+                prevEl.className = "pipeline-node " + (isFail ? "active-fail" : "active-pass");
+                const st = prevEl.querySelector(".node-status");
+                if (st) st.innerText = prev.passLabel;
+            }
+        }
+
+        if (idx < pipelineSequence.length) {
+            const curr = pipelineSequence[idx];
+            const currEl = document.getElementById(curr.id);
+            if (currEl) {
+                currEl.className = "pipeline-node active-pass";
+                const st = currEl.querySelector(".node-status");
+                if (st) st.innerText = "SCANNING...";
+            }
+            idx++;
+            setTimeout(step, 120);
+        } else {
+            if (onComplete) onComplete();
+        }
+    }
+
+    step();
+};
+
 // Global Risk Widget Renderer
 window.updateRiskWidget = function(score, level, entities, hasThreat) {
     const circle = document.getElementById("riskCircle");
@@ -597,39 +639,43 @@ function displayMultimodalResults(report) {
     }
 
     // 3. Update Hybrid Privacy & Injection Detection Pipeline Visualizer Nodes
-    const pipelineNodes = [
-        { id: "node-regex", label: "PASSED", cls: "active-pass" },
-        { id: "node-ner", label: "PASSED", cls: "active-pass" },
-        { id: "node-classifier", label: "PASSED", cls: "active-pass" },
-        { id: "node-llm", label: "PASSED", cls: "active-pass" },
-        { id: "node-aggregator", label: "PASSED", cls: "active-pass" }
-    ];
-    pipelineNodes.forEach(n => {
-        const el = document.getElementById(n.id);
-        if (el) {
-            el.className = "pipeline-node " + n.cls;
-            const statusSpan = el.querySelector(".node-status");
-            if (statusSpan) {
-                statusSpan.innerText = n.label;
+    if (window.animatePipelineNodes) {
+        window.animatePipelineNodes(report);
+    } else {
+        const pipelineNodes = [
+            { id: "node-regex", label: "PASSED", cls: "active-pass" },
+            { id: "node-ner", label: "PASSED", cls: "active-pass" },
+            { id: "node-classifier", label: "PASSED", cls: "active-pass" },
+            { id: "node-llm", label: "PASSED", cls: "active-pass" },
+            { id: "node-aggregator", label: "PASSED", cls: "active-pass" }
+        ];
+        pipelineNodes.forEach(n => {
+            const el = document.getElementById(n.id);
+            if (el) {
+                el.className = "pipeline-node " + n.cls;
+                const statusSpan = el.querySelector(".node-status");
+                if (statusSpan) {
+                    statusSpan.innerText = n.label;
+                }
             }
-        }
-    });
+        });
 
-    const finalNodeEl = document.getElementById("node-decision");
-    if (finalNodeEl) {
-        const statusSpan = finalNodeEl.querySelector(".node-status");
-        let label = "PASSED";
-        let cls = "active-pass";
-        if (report.risk_label === "CRITICAL" || report.risk_score >= 80) {
-            label = "BLOCKED";
-            cls = "active-fail";
-        } else if (report.detected_entities_count > 0 || report.risk_score > 0) {
-            label = "SANITIZED";
-            cls = "active-pass";
-        }
-        finalNodeEl.className = "pipeline-node " + cls;
-        if (statusSpan) {
-            statusSpan.innerText = label;
+        const finalNodeEl = document.getElementById("node-decision");
+        if (finalNodeEl) {
+            const statusSpan = finalNodeEl.querySelector(".node-status");
+            let label = "PASSED";
+            let cls = "active-pass";
+            if (report.risk_label === "CRITICAL" || report.risk_score >= 80) {
+                label = "BLOCKED";
+                cls = "active-fail";
+            } else if (report.detected_entities_count > 0 || report.risk_score > 0) {
+                label = "SANITIZED";
+                cls = "active-pass";
+            }
+            finalNodeEl.className = "pipeline-node " + cls;
+            if (statusSpan) {
+                statusSpan.innerText = label;
+            }
         }
     }
 
