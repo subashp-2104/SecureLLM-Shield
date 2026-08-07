@@ -343,26 +343,30 @@ window.updateRiskWidget = function(score, level, entities, hasThreat) {
     const riskVal = score || 0;
     const labelVal = level || (riskVal > 75 ? "CRITICAL" : (riskVal > 50 ? "HIGH" : (riskVal > 25 ? "MODERATE" : "SAFE")));
 
-    let color = "var(--success)";
+    let color = "#10b981";
     let badgeClass = "badge badge-safe";
 
     if (labelVal === "CRITICAL" || riskVal >= 80) {
-        color = "var(--danger)";
+        color = "#ef4444";
         badgeClass = "badge badge-danger";
     } else if (labelVal === "HIGH" || riskVal >= 60) {
-        color = "var(--warning)";
+        color = "#f59e0b";
         badgeClass = "badge badge-warning";
     } else if (labelVal === "MODERATE" || riskVal >= 30) {
-        color = "var(--primary)";
+        color = "#00f2fe";
         badgeClass = "badge badge-primary";
     }
 
     if (circle) {
         circle.style.setProperty("--risk-percent", riskVal);
         circle.style.setProperty("--circle-color", color);
+        circle.style.background = `conic-gradient(${color} ${riskVal * 1}%, rgba(255, 255, 255, 0.05) 0deg)`;
     }
     if (percentEl) percentEl.innerText = `${riskVal}%`;
-    if (levelLabelEl) levelLabelEl.innerText = labelVal;
+    if (levelLabelEl) {
+        levelLabelEl.innerText = labelVal;
+        levelLabelEl.style.color = color;
+    }
     if (badgeEl) {
         badgeEl.innerText = `${labelVal} (${riskVal}%)`;
         badgeEl.className = `badge risk-level-badge ${badgeClass}`;
@@ -380,7 +384,8 @@ window.updateRiskWidget = function(score, level, entities, hasThreat) {
                 entities.forEach(e => {
                     const eType = e.entity_type || e.type || "PII";
                     const eVal = e.masked_value || e.original_value || "Detected";
-                    html += `<li><i data-lucide="shield-alert" class="text-blue"></i> ${eType} matched (${eVal})</li>`;
+                    const eColor = (e.risk_level === "Critical" || e.risk_level === "High") ? "text-red" : "text-blue";
+                    html += `<li><i data-lucide="shield-alert" class="${eColor}"></i> ${eType} matched (${eVal})</li>`;
                 });
             }
             factorsUl.innerHTML = html;

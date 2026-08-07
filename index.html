@@ -489,6 +489,7 @@
             if (circle) {
                 circle.style.setProperty("--risk-percent", riskScore);
                 circle.style.setProperty("--circle-color", decisionColor);
+                circle.style.background = "conic-gradient(" + decisionColor + " " + (riskScore * 1) + "%, rgba(255, 255, 255, 0.05) 0deg)";
             }
             var riskPct = document.getElementById("riskPercentage");
             if (riskPct) riskPct.textContent = riskScore + "%";
