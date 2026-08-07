@@ -320,12 +320,14 @@ window.runAnalysisForSelectedFile = async function() {
         if (progressBar) progressBar.style.width = "100%";
 
         displayMultimodalResults(report);
+        currentSelectedFile = null;
 
     } catch (err) {
         console.error("Multimodal upload failed:", err);
-        runFallbackMultimodalScan(file.name);
+        runFallbackMultimodalScan(file ? file.name : "pii_document.pdf");
+        currentSelectedFile = null;
     } finally {
-        if (runBtn) { runBtn.disabled = false; runBtn.innerHTML = 'Run Analysis <i data-lucide="play" class="icon-inline"></i>'; }
+        if (runBtn) { runBtn.disabled = false; runBtn.innerHTML = '<i data-lucide="shield-check" class="icon-inline"></i> Run Security Analysis ▶'; }
         if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
     }
 };
