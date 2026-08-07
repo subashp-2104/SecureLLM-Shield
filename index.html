@@ -1559,7 +1559,7 @@
                                 <textarea id="promptInput" placeholder="Enter your prompt here to test security filtering..."></textarea>
                                 <div class="input-actions" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                                     <button type="button" class="btn btn-secondary" onclick="clearPlayground()">Clear</button>
-                                    <button type="button" class="btn btn-secondary" onclick="switchSandboxSubTab('multimodal'); setTimeout(() => { const inp = document.getElementById('fileUploadInput'); if(inp) inp.click(); }, 100);"><i data-lucide="file-up" class="icon-inline text-cyan"></i> Upload Document / File</button>
+                                    <button type="button" class="btn btn-secondary" onclick="const inp = document.getElementById('fileUploadInput'); if(inp) inp.click();"><i data-lucide="file-up" class="icon-inline text-cyan"></i> Upload Document / File</button>
                                     <button type="button" class="btn btn-primary" onclick="analyzePrompt()">Analyze Prompt <i data-lucide="play" class="icon-inline"></i></button>
                                 </div>
                             </div>

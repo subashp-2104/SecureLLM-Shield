@@ -633,20 +633,49 @@ function displayMultimodalResults(report) {
         }
     }
 
-    // 4. Update Prompt Sanitizer & Diff Output Viewer
-    const sanitizedOutputEl = document.getElementById("sanitizedOutput");
-    const diffContainerEl = document.getElementById("diffContainer");
-    const outputBadgeEl = document.getElementById("outputBadge");
-    if (sanitizedOutputEl) {
-        sanitizedOutputEl.innerText = report.sanitized_text_preview || "Sanitized document payload ready.";
+    // 4. Update Prompt Sanitizer & Diff Output Viewer & Input Text Box
+    const promptInputEl = document.getElementById("promptInput");
+    const outputPromptEl = document.getElementById("outputPromptContainer");
+    const outputDiffEl = document.getElementById("outputDiffContainer");
+    const outputBadgeEl = document.getElementById("outputStatusBadge");
+    const legacySanitizedEl = document.getElementById("sanitizedOutput");
+    const legacyDiffEl = document.getElementById("diffContainer");
+
+    const sanitizedText = report.sanitized_text_preview || "Sanitized payload ready.";
+    const originalText = report.extracted_text_preview || "";
+
+    if (promptInputEl && originalText) {
+        promptInputEl.value = originalText;
     }
-    if (diffContainerEl) {
-        diffContainerEl.innerHTML = `<pre style="color: var(--primary-glow); font-family: monospace; white-space: pre-wrap; margin:0;">${report.sanitized_text_preview || 'No changes detected.'}</pre>`;
+
+    if (outputPromptEl) {
+        outputPromptEl.textContent = sanitizedText;
+        outputPromptEl.className = report.risk_label === "CRITICAL" ? "masked-output-text text-red" : "masked-output-text text-blue";
     }
+
+    if (outputDiffEl) {
+        if (report.detected_entities && report.detected_entities.length > 0) {
+            let diffHtml = originalText;
+            report.detected_entities.forEach(e => {
+                const orig = e.original_value || "";
+                const masked = e.masked_value || "[REDACTED]";
+                if (orig) {
+                    diffHtml = diffHtml.split(orig).join(`<mark class="masked-diff" title="${e.entity_type}">${masked}</mark>`);
+                }
+            });
+            outputDiffEl.innerHTML = diffHtml || sanitizedText;
+        } else {
+            outputDiffEl.innerHTML = `<pre style="color: var(--primary-glow); font-family: monospace; white-space: pre-wrap; margin:0;">${sanitizedText}</pre>`;
+        }
+    }
+
     if (outputBadgeEl) {
-        outputBadgeEl.innerText = report.risk_label === "CRITICAL" ? "BLOCKED & QUARANTINED" : "SANITIZED OUTPUT";
+        outputBadgeEl.textContent = report.action_taken || "SANITIZED";
         outputBadgeEl.className = report.risk_label === "CRITICAL" ? "badge badge-danger" : "badge badge-safe";
     }
+
+    if (legacySanitizedEl) legacySanitizedEl.innerText = sanitizedText;
+    if (legacyDiffEl) legacyDiffEl.innerHTML = `<pre style="color: var(--primary-glow); font-family: monospace; white-space: pre-wrap; margin:0;">${sanitizedText}</pre>`;
 
     if (window.lucide) { try { window.lucide.createIcons(); } catch(e){} }
 }
